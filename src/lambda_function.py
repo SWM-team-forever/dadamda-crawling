@@ -64,6 +64,10 @@ def crawling(url):
 
         #유튜브
         elif url.startswith("https://www.youtube.com/") :
+            views = soup.select_one('meta[itemprop="interactionCount"]')['content'] #조회수
+            publishedDate = soup.select_one('meta[itemprop="datePublished"]')['content']
+            uploadDate = soup.select_one('meta[itemprop="uploadDate"]')['content']
+            genre = soup.select_one('meta[itemprop="genre"]')['content']
             video_url = soup.select_one('meta[property="og:video:url"]')['content'] #영상 재생 url
             title = soup.select_one('meta[property="og:title"]')['content'] #영상 제목
             image = soup.select_one('meta[property="og:image"]')['content'] #영상 이미지
