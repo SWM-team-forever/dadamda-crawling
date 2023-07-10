@@ -119,10 +119,7 @@ def crawling(url):
         elif url.startswith("https://www.coupang.com/"):
             title = soup.select_one('meta[property="og:title"]')['content']
             thumbnail_url = soup.select_one('meta[property="og:image"]')['content']
-            price = ""
-            price_selector = "#contents > div.prod-atf > div > div.prod-buy.new-oos-style.not-loyalty-member.eligible-address.without-subscribe-buy-type.DISPLAY_0 > div.prod-price-container > div.prod-price > div > div.prod-coupon-price.price-align.major-price-coupon > span.total-price > strong"
-            element = soup.select_one(price_selector)
-            price = element.text
+            price = soup.select_one("span.total-price > strong").text
 
             # sql_string = f"insert into product (url, title, image, price, site) values('{url}','{title}','https:{image}','{price}','쿠팡')"
 
