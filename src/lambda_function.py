@@ -44,7 +44,7 @@ def crawling(url):
 
     if response.status_code == 200: #정상적으로 받아졌다면, 200이라는 상태 코드를 반환한다.
         html = response.text
-        soup = BeautifulSoup(html, 'html.parser') #html을 잘 정리된 형태로 반환한다.
+        soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')  #html을 잘 정리된 형태로 반환한다.
 
         #네이버TV
         if url.startswith("https://tv.naver.com/") :
