@@ -48,51 +48,46 @@ def crawling(url):
 
         #네이버TV
         if url.startswith("https://tv.naver.com/") :
-            video_url = soup.select_one('meta[property="og:video:url"]')['content'] #영상 재생 url
+            embed_url = soup.select_one('meta[property="og:video:url"]')['content'] #영상 재생 url
             title = soup.select_one('meta[property="og:title"]')['content'] #영상 제목
-            image = soup.select_one('meta[property="og:image"]')['content'] #영상 이미지
-            author = soup.select_one('meta[property="og:article:author"]')['content'] #채널명
-            author_image = soup.select_one('meta[property="og:article:author:image"]')['content'] #채널 프로필
-
-            play_count = soup.select_one('meta[property="naver:video:play_count"]')['content'] #조회수
-            likeit_count = soup.select_one('meta[property="naver:video:likeit_count"]')['content'] #좋아요수
+            thumbnail_url = soup.select_one('meta[property="og:image"]')['content'] #영상 이미지
+            channel_name = soup.select_one('meta[property="og:article:author"]')['content'] #채널명
+            channel_image_url = soup.select_one('meta[property="og:article:author:image"]')['content'] #채널 프로필
+            watched_cnt = soup.select_one('meta[property="naver:video:play_count"]')['content'] #조회수
             play_time = soup.select_one('meta[property="naver:video:play_time"]')['content'] #영상 재생 시간
-            date = soup.select_one(".date").text #영상 게시일
-            sub = soup.select_one(".sub").text #구독자수
-
+            published_at = soup.select_one(".date").text #영상 게시일
             description = soup.select_one('meta[property="og:description"]')['content'] #영상 설명
 
         #유튜브
         elif url.startswith("https://www.youtube.com/") :
-            views = soup.select_one('meta[itemprop="interactionCount"]')['content'] #조회수
-            publishedDate = soup.select_one('meta[itemprop="datePublished"]')['content']
-            uploadDate = soup.select_one('meta[itemprop="uploadDate"]')['content']
+            watched_cnt = soup.select_one('meta[itemprop="interactionCount"]')['content'] #조회수
+            published_at = soup.select_one('meta[itemprop="datePublished"]')['content']
+            # uploadDate = soup.select_one('meta[itemprop="uploadDate"]')['content']
             genre = soup.select_one('meta[itemprop="genre"]')['content']
-            video_url = soup.select_one('meta[property="og:video:url"]')['content'] #영상 재생 url
+            embed_url = soup.select_one('meta[property="og:video:url"]')['content'] #영상 재생 url
             title = soup.select_one('meta[property="og:title"]')['content'] #영상 제목
-            image = soup.select_one('meta[property="og:image"]')['content'] #영상 이미지
-            author = soup.select_one('link[itemprop="name"]')['content'] #채널명
-            keywords = soup.select_one('meta[name="keywords"]')['content']  #키워드 문자열
+            thumbnail_url = soup.select_one('meta[property="og:image"]')['content'] #영상 이미지
+            channel_name = soup.select_one('link[itemprop="name"]')['content'] #채널명
             site_name = soup.select_one('meta[property="og:site_name"]')['content'] #사이트명 : 유튜브
             description = soup.select_one('meta[property="og:description"]')['content'] #영상 설명
 
         #네이버 블로그
         elif url.startswith("https://blog.naver.com/") :
             author = soup.select_one('meta[property="naverblog:nickname"]')['content'] #글쓴이
-            author_image = soup.select_one('meta[property="naverblog:profile_image"]')['content'] #글쓴이 프로필
+            author_image_url = soup.select_one('meta[property="naverblog:profile_image"]')['content'] #글쓴이 프로필
             blog_name = soup.select_one('meta[property="og:site_name"]')['content'] #블로그명
             title = soup.select_one('meta[property="og:title"]')['content'] #블로그 글 제목
             description = soup.select_one('meta[property="og:description"]')['content'] #블로그글 설명
-            image = soup.select_one('meta[property="og:image"]')['content'] #블로그글 대표 사진
-            published_time = soup.select_one('.se_publishDate').text #블로그글 게시일
+            thumbnail_url = soup.select_one('meta[property="og:image"]')['content'] #블로그글 대표 사진
+            published_at = soup.select_one('.se_publishDate').text #블로그글 게시일
 
         elif url.startswith("https://velog.io/") :
             author = soup.select_one('.username').text #글쓴이
             blog_name = soup.select_one('.user-logo').text #블로그명
             title = soup.select_one('meta[property="og:title"]')['content'] #블로그 글 제목
             description = soup.select_one('meta[property="og:description"]')['content'] #블로그글 설명
-            image = soup.select_one('meta[property="og:image"]')['content'] #블로그글 대표 사진
-            published_time = list(soup.select_one('.information').stripped_strings)[2] #블로그글 게시일
+            thumbnail_url = soup.select_one('meta[property="og:image"]')['content'] #블로그글 대표 사진
+            published_at = list(soup.select_one('.information').stripped_strings)[2] #블로그글 게시일
 
         #티스토리
         elif url.find(".tistory.com") != -1 :
@@ -100,9 +95,8 @@ def crawling(url):
             blog_name = soup.select_one('meta[property="og:site_name"]')['content'] #블로그명
             title = soup.select_one('meta[property="og:title"]')['content'] #블로그 글 제목
             description = soup.select_one('meta[property="og:description"]')['content'] #블로그글 설명
-            image = soup.select_one('meta[property="og:image"]')['content'] #블로그글 대표 사진
-            published_time = soup.select_one('meta[property="article:published_time"]')['content'] #블로그글 게시일
-            modified_time = soup.select_one('meta[property="article:modified_time"]')['content'] #블로그글 수정일
+            thumbnail_url = soup.select_one('meta[property="og:image"]')['content'] #블로그글 대표 사진
+            published_at = soup.select_one('meta[property="article:published_time"]')['content'] #블로그글 게시일
 
         #브런치
         elif url.startswith("https://brunch.co.kr/") :
@@ -110,13 +104,13 @@ def crawling(url):
             blog_name = soup.select_one('meta[property="og:site_name"]')['content'] #블로그명 -> Brunch Story로 모두 동일
             title = soup.select_one('meta[property="og:title"]')['content'] #블로그 글 제목
             description = soup.select_one('meta[property="og:description"]')['content'] #블로그글 설명
-            image = soup.select_one('meta[property="og:image"]')['content'] #블로그글 대표 사진
-            published_time = soup.select_one('.date').text #블로그글 게시일
+            thumbnail_url = soup.select_one('meta[property="og:image"]')['content'] #블로그글 대표 사진
+            published_at = soup.select_one('.date').text #블로그글 게시일
 
         #11번가
         elif url.startswith("https://www.11st.co.kr/"):
             title = soup.select_one('meta[property="og:title"]')['content']
-            image = soup.select_one('meta[property="og:image"]')['content']
+            thumbnail_url = soup.select_one('meta[property="og:image"]')['content']
             price = soup.select_one('meta[property="og:description"]')['content'].split(':')[1][1:]
         
             # sql_string = f"insert into product (url, title, image, price, site) values('{url}','{title}','{image}','{price}','11번가')"
@@ -124,7 +118,7 @@ def crawling(url):
         #쿠팡
         elif url.startswith("https://www.coupang.com/"):
             title = soup.select_one('meta[property="og:title"]')['content']
-            image = soup.select_one('meta[property="og:image"]')['content']
+            thumbnail_url = soup.select_one('meta[property="og:image"]')['content']
             price = ""
             price_selector = "#contents > div.prod-atf > div > div.prod-buy.new-oos-style.not-loyalty-member.eligible-address.without-subscribe-buy-type.DISPLAY_0 > div.prod-price-container > div.prod-price > div > div.prod-coupon-price.price-align.major-price-coupon > span.total-price > strong"
             element = soup.select_one(price_selector)
