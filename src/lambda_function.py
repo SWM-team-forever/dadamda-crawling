@@ -1,10 +1,6 @@
 import json
 import requests
 from bs4 import BeautifulSoup
-import logging
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
     
@@ -27,74 +23,128 @@ def crawling(url):
         "Accept-Language": "ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3"
     }
 
-    response = requests.get(url, headers=header) #해당 url로부터 html이 담긴 자료를 받아온다.
+    response = requests.get(url, headers=header)
 
-    if response.status_code == 200: #정상적으로 받아졌다면, 200이라는 상태 코드를 반환한다.
+    if response.status_code == 200:
         html = response.text
-        soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')  #html을 잘 정리된 형태로 반환한다.
+        soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
 
-        #네이버TV
-        if url.startswith("https://tv.naver.com/") :
-            title = soup.select_one('meta[property="og:title"]')['content'] #영상 제목
-            thumbnail_url = soup.select_one('meta[property="og:image"]')['content'] #영상 이미지
-            description = soup.select_one('meta[property="og:description"]')['content'] #영상 설명
-
-            embed_url = soup.select_one('meta[property="og:video:url"]')['content'] #영상 재생 url
-            channel_name = soup.select_one('meta[property="og:article:author"]')['content'] #채널명
-            channel_image_url = soup.select_one('meta[property="og:article:author:image"]')['content'] #채널 프로필
-            watched_cnt = soup.select_one('meta[property="naver:video:play_count"]')['content'] #조회수
-            play_time = soup.select_one('meta[property="naver:video:play_time"]')['content'] #영상 재생 시간
-            published_date = soup.select_one(".date").text #영상 게시일
-            site_name = "네이버 TV"
-            genre = None
-
+        if url.startswith("https://www.youtube.com/") :
             result = {
                 "type" : "video",
                 "page_url" : url,
-                "title" : title,
-                "thumbnail_url" : thumbnail_url,
-                "description" : description,
-                "embed_url" : embed_url,
-                "channel_name" : channel_name,
-                "channel_image_url" : channel_image_url,
-                "watched_cnt" : watched_cnt,
-                "play_time" : play_time,
-                "published_date" : published_date,
-                "site_name" : site_name,
-                "genre" : genre
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "description" : soup.select_one('meta[property="og:description"]')['content'],
+                "embed_url" : soup.select_one('meta[property="og:video:url"]')['content'],
+                "channel_name" : soup.select_one('link[itemprop="name"]')['content'],
+                "channel_image_url" : None,
+                "watched_cnt" : soup.select_one('meta[itemprop="interactionCount"]')['content'],
+                "play_time" : None,
+                "published_date" : soup.select_one('meta[itemprop="datePublished"]')['content'], #2023-06-30
+                "site_name" : "YouTube",
+                "genre" : soup.select_one('meta[itemprop="genre"]')['content']
             }
 
-        #유튜브
-        elif url.startswith("https://www.youtube.com/") :
-            title = soup.select_one('meta[property="og:title"]')['content'] #영상 제목
-            thumbnail_url = soup.select_one('meta[property="og:image"]')['content'] #영상 이미지
-            description = soup.select_one('meta[property="og:description"]')['content'] #영상 설명
-
-            embed_url = soup.select_one('meta[property="og:video:url"]')['content'] #영상 재생 url
-            channel_name = soup.select_one('link[itemprop="name"]')['content'] #채널명
-            channel_image_url = None
-            watched_cnt = soup.select_one('meta[itemprop="interactionCount"]')['content'] #조회수
-            play_time = None
-            published_date = soup.select_one('meta[itemprop="datePublished"]')['content']
-            genre = soup.select_one('meta[itemprop="genre"]')['content']
-            
-
-            site_name = soup.select_one('meta[property="og:site_name"]')['content'] #사이트명 : 유튜브
-
+        elif url.startswith("https://tv.naver.com/") :
             result = {
                 "type" : "video",
                 "page_url" : url,
-                "title" : title,
-                "thumbnail_url" : thumbnail_url,
-                "description" : description,
-                "embed_url" : embed_url,
-                "channel_name" : channel_name,
-                "channel_image_url" : channel_image_url,
-                "watched_cnt" : watched_cnt,
-                "play_time" : play_time,
-                "published_date" : published_date,
-                "site_name" : site_name,
-                "genre" : genre
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "description" : soup.select_one('meta[property="og:description"]')['content'],
+                "embed_url" : soup.select_one('meta[property="og:video:url"]')['content'],
+                "channel_name" : soup.select_one('meta[property="og:article:author"]')['content'],
+                "channel_image_url" : soup.select_one('meta[property="og:article:author:image"]')['content'],
+                "watched_cnt" : soup.select_one('meta[property="naver:video:play_count"]')['content'],
+                "play_time" : soup.select_one('meta[property="naver:video:play_time"]')['content'],
+                "published_date" : soup.select_one(".date").text.replace('.', '-', 2)[:10], #2023.07.17. -> 2023-07-17
+                "site_name" : "Naver TV",
+                "genre" : None
+            }        
+
+        # elif url.startswith("https://blog.naver.com/") : #잘 안됨
+        #     result = {
+        #         "type" : "article",
+        #         "page_url" : url,
+        #         "title" : soup.select_one('meta[property="og:title"]')['content'],
+        #         "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+        #         "description" : soup.select_one('meta[property="og:description"]')['content'],
+        #         "author" : soup.select_one('meta[property="naverblog:nickname"]')['content'],
+        #         "author_image_url" : soup.select_one('meta[property="naverblog:profile_image"]')['content'],
+        #         "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
+        #         "published_date" : soup.select_one('.se_publishDate').text, 
+        #     }
+
+        elif url.startswith("https://velog.io/") :
+            published_date = list(soup.select_one('.information').stripped_strings)[2] #2시간전 -> 수정해야 함.
+            #if() #0분전, 0시간전, 0일전, 어제, 
+
+            result = {
+                "type" : "article",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "description" : soup.select_one('meta[property="og:description"]')['content'],
+                "author" : soup.select_one('.username').text,
+                "author_image_url" : None,
+                "blog_name" : soup.select_one('.user-logo').text,
+                "published_date" : published_date, 
+            }
+        elif url.find(".tistory.com") != -1 :
+            result = {
+                "type" : "article",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "description" : soup.select_one('meta[property="og:description"]')['content'],
+                "author" : soup.select_one('meta[property="og.article.author"]')['content'],
+                "author_image_url" : None,
+                "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
+                "published_date" : soup.select_one('meta[property="article:published_time"]')['content'], #2021-03-05T10:53:30+09:00
+            }
+
+        #브런치
+        elif url.startswith("https://brunch.co.kr/") :
+            result = {
+                "type" : "article",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "description" : soup.select_one('meta[property="og:description"]')['content'],
+                "author" : soup.select_one('meta[name="og:article:author"]')['content'],
+                "author_image_url" : None,
+                "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
+                "published_date" : soup.select_one('.date').text, #'2시간전'
+            }
+
+             #11번가
+        elif url.startswith("https://www.11st.co.kr/"):
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "price" : soup.select_one('meta[property="og:description"]')['content'].split(':')[1][1:], #12,900원
+            }
+        
+        #쿠팡
+        elif url.startswith("https://www.coupang.com/"):
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "price" : soup.select_one("span.total-price > strong").text, #3,999,000원
+            }
+
+        else :
+            result = {
+                "type" : "other",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "description" : soup.select_one('meta[property="og:description"]')['content'] 
             }
 
         return result
