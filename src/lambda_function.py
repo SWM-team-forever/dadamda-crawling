@@ -89,6 +89,7 @@ def crawling(url):
                 "author" : soup.select_one('.username').text,
                 "author_image_url" : None,
                 "blog_name" : soup.select_one('.user-logo').text,
+                "site_name" : "Velog",
                 "published_date" : published_date, 
             }
         elif url.find(".tistory.com") != -1 :
@@ -101,6 +102,7 @@ def crawling(url):
                 "author" : soup.select_one('meta[property="og.article.author"]')['content'],
                 "author_image_url" : None,
                 "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
+                "site_name" : "Tistory",
                 "published_date" : soup.select_one('meta[property="article:published_time"]')['content'], #2021-03-05T10:53:30+09:00
             }
 
@@ -115,6 +117,7 @@ def crawling(url):
                 "author" : soup.select_one('meta[name="og:article:author"]')['content'],
                 "author_image_url" : None,
                 "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
+                "site_name" : "Brunch",
                 "published_date" : soup.select_one('.date').text, #'2시간전'
             }
 
@@ -126,6 +129,7 @@ def crawling(url):
                 "title" : soup.select_one('meta[property="og:title"]')['content'],
                 "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
                 "price" : soup.select_one('meta[property="og:description"]')['content'].split(':')[1][1:], #12,900원
+                "site_name" : "11st",
             }
         
         #쿠팡
@@ -136,6 +140,7 @@ def crawling(url):
                 "title" : soup.select_one('meta[property="og:title"]')['content'],
                 "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
                 "price" : soup.select_one("span.total-price > strong").text, #3,999,000원
+                "site_name" : "Coupang",
             }
 
         else :
