@@ -108,6 +108,19 @@ def crawling(url):
                 "published_date" : kst_time_formatted, 
             }
         elif url.find(".tistory.com") != -1 :
+
+            # 주어진 RFC 3339 형식의 시간
+            rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
+
+            # RFC 3339 형식을 파싱하여 datetime 객체로 변환
+            rfc3339_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M:%S%z")
+
+            # 한국 시간으로 변환 (시간대 정보를 제거하고 9시간을 더함)
+            kst_time = rfc3339_time.astimezone(timezone(timedelta(hours=9)))
+
+            # 한국 시간을 문자열로 변환하여 MySQL TIMESTAMP 타입에 맞는 형태로 표현
+            published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+
             result = {
                 "type" : "article",
                 "page_url" : url,
@@ -118,11 +131,24 @@ def crawling(url):
                 "author_image_url" : None,
                 "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
                 "site_name" : "Tistory",
-                "published_date" : soup.select_one('meta[property="article:published_time"]')['content'], #2021-03-05T10:53:30+09:00
+                "published_date" : published_date
             }
 
         #브런치
         elif url.startswith("https://brunch.co.kr/") :
+
+            # 주어진 RFC 3339 형식의 시간
+            rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
+
+            # RFC 3339 형식을 파싱하여 datetime 객체로 변환
+            rfc3339_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M%z")
+
+            # 한국 시간으로 변환 (시간대 정보를 제거하고 9시간을 더함)
+            kst_time = rfc3339_time.astimezone(timezone(timedelta(hours=9)))
+
+            # 한국 시간을 문자열로 변환하여 출력
+            published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+
             result = {
                 "type" : "article",
                 "page_url" : url,
@@ -133,7 +159,7 @@ def crawling(url):
                 "author_image_url" : None,
                 "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
                 "site_name" : "Brunch",
-                "published_date" : soup.select_one('.date').text, #'2시간전'
+                "published_date" : published_date
             }
 
              #11번가
