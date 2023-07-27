@@ -154,6 +154,13 @@ def crawling(url):
             # 한국 시간을 문자열로 변환하여 출력
             published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
 
+            author_image_url_regex = r"https://tistory1.daumcdn.net/tistory/\w{7}/attach/\w{32}"
+            author_image_url_match = re.search(author_image_url_regex, html)
+
+            if author_image_url_match:
+                author_image_url = author_image_url_match.group()
+
+
             result = {
                 "type" : "article",
                 "page_url" : url,
@@ -161,7 +168,7 @@ def crawling(url):
                 "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
                 "description" : soup.select_one('meta[property="og:description"]')['content'],
                 "author" : soup.select_one('meta[name="og:article:author"]')['content'],
-                "author_image_url" : None,
+                "author_image_url" : author_image_url,
                 "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
                 "site_name" : "Brunch",
                 "published_date" : published_date
