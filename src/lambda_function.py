@@ -92,8 +92,13 @@ def crawling(url):
 
                 # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
                 kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-            else:
-                print("HTML에서 'updated_at' 값을 찾을 수 없습니다.")
+
+            # author_image_url 찾기
+            author_image_url_regex = r"https://velog.velcdn.com/images/\w+/profile/\S+\.\w+"
+            author_image_url_match = re.search(author_image_url_regex, html)
+
+            if author_image_url_match:
+                author_image_url = author_image_url_match.group()
 
             result = {
                 "type" : "article",
@@ -102,7 +107,7 @@ def crawling(url):
                 "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
                 "description" : soup.select_one('meta[property="og:description"]')['content'],
                 "author" : soup.select_one('.username').text,
-                "author_image_url" : None,
+                "author_image_url" : author_image_url,
                 "blog_name" : soup.select_one('.user-logo').text,
                 "site_name" : "Velog",
                 "published_date" : kst_time_formatted, 
