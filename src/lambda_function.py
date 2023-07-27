@@ -1,5 +1,7 @@
 import json
 import requests
+import re
+from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 
 def lambda_handler(event, context):
@@ -77,8 +79,21 @@ def crawling(url):
         #     }
 
         elif url.startswith("https://velog.io/") :
-            published_date = list(soup.select_one('.information').stripped_strings)[2] #2시간전 -> 수정해야 함.
-            #if() #0분전, 0시간전, 0일전, 어제, 
+            
+            # publishedDate 찾기
+            regex = r'"released_at":"([^"]+)"'
+            match = re.search(regex, html)
+
+            if match:
+                published_date = match.group(1)
+
+                utc_time = datetime.strptime(published_date, "%Y-%m-%dT%H:%M:%S.%fZ")
+                kst_time = utc_time + timedelta(hours=9)
+
+                # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
+                kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                print("HTML에서 'updated_at' 값을 찾을 수 없습니다.")
 
             result = {
                 "type" : "article",
@@ -90,7 +105,7 @@ def crawling(url):
                 "author_image_url" : None,
                 "blog_name" : soup.select_one('.user-logo').text,
                 "site_name" : "Velog",
-                "published_date" : published_date, 
+                "published_date" : kst_time_formatted, 
             }
         elif url.find(".tistory.com") != -1 :
             result = {
