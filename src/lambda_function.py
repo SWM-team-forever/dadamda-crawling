@@ -16,6 +16,54 @@ def lambda_handler(event, context):
         'body': json.dumps(crawling(url), ensure_ascii=False)
     }
 
+def isCoupangProduct(url):
+    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
+def is11stProduct(url):
+    url_rex = r"https:\/\/www.11st.co.kr\/products\/\S+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
+def isVelogArticle(url):
+    url_rex = r"https:\/\/velog.io\/@\S+\/\S+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
+def isTistoryArticle(url):
+    url_rex = r"https:\/\/\S+.tistory.com\/\d+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
+def isBrunchArticle(url):
+    url_rex = r"https:\/\/brunch.co.kr\/@\S+\/\d+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
+def isNaverTvVideo(url):
+    url_rex = r"https:\/\/tv.naver.com\/v\/\S+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
 def crawling(url):
 
     result = {}
@@ -48,7 +96,7 @@ def crawling(url):
                 "genre" : soup.select_one('meta[itemprop="genre"]')['content']
             }
 
-        elif url.startswith("https://tv.naver.com/") :
+        elif isNaverTvVideo(url):
             result = {
                 "type" : "video",
                 "page_url" : url,
@@ -78,7 +126,7 @@ def crawling(url):
         #         "published_date" : soup.select_one('.se_publishDate').text, 
         #     }
 
-        elif url.startswith("https://velog.io/") :
+        elif isVelogArticle(url):
             
             # publishedDate 찾기
             regex = r'"released_at":"([^"]+)"'
@@ -112,7 +160,7 @@ def crawling(url):
                 "site_name" : "Velog",
                 "published_date" : kst_time_formatted, 
             }
-        elif url.find(".tistory.com") != -1 :
+        elif isTistoryArticle(url):
 
             # 주어진 RFC 3339 형식의 시간
             rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
@@ -146,7 +194,7 @@ def crawling(url):
             }
 
         #브런치
-        elif url.startswith("https://brunch.co.kr/") :
+        elif isBrunchArticle(url):
 
             # 주어진 RFC 3339 형식의 시간
             rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
@@ -181,7 +229,7 @@ def crawling(url):
             }
 
              #11번가
-        elif url.startswith("https://www.11st.co.kr/"):
+        elif is11stProduct(url):
             result = {
                 "type" : "product",
                 "page_url" : url,
@@ -192,7 +240,7 @@ def crawling(url):
             }
         
         #쿠팡
-        elif url.startswith("https://www.coupang.com/"):
+        elif isCoupangProduct(url):
             result = {
                 "type" : "product",
                 "page_url" : url,
