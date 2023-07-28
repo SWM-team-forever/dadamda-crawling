@@ -159,7 +159,7 @@ def crawling(url):
 
             # 한국 시간을 문자열로 변환하여 출력
             published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-            
+
             author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
             author_image_url_match = re.search(author_image_url_regex, html)
 
@@ -171,7 +171,7 @@ def crawling(url):
                 "type" : "article",
                 "page_url" : url,
                 "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][:2],
                 "description" : soup.select_one('meta[property="og:description"]')['content'],
                 "author" : soup.select_one('meta[name="og:article:author"]')['content'],
                 "author_image_url" : author_image_url,
