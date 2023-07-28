@@ -16,6 +16,7 @@ def lambda_handler(event, context):
         'body': json.dumps(crawling(url), ensure_ascii=False)
     }
 
+
 def crawling(url):
 
     result = {}
@@ -192,7 +193,7 @@ def crawling(url):
             }
         
         #쿠팡
-        elif url.startswith("https://www.coupang.com/"):
+        elif isCoupangProduct(url):
             result = {
                 "type" : "product",
                 "page_url" : url,
@@ -212,3 +213,11 @@ def crawling(url):
             }
 
         return result
+
+def isCoupangProduct(url):
+    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
