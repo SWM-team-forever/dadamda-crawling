@@ -40,6 +40,14 @@ def isVelogArticle(url):
     else:
         return False;
 
+def isTistoryArticle(url):
+    url_rex = r"https:\/\/\S+.tistory.com\/\d+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
 def crawling(url):
 
     result = {}
@@ -136,7 +144,7 @@ def crawling(url):
                 "site_name" : "Velog",
                 "published_date" : kst_time_formatted, 
             }
-        elif url.find(".tistory.com") != -1 :
+        elif isTistoryArticle(url):
 
             # 주어진 RFC 3339 형식의 시간
             rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
