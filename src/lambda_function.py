@@ -32,6 +32,14 @@ def is11stProduct(url):
     else:
         return False;
 
+def isNaverArticle(url):
+    url_rex = r"https:\/\/blog.naver.com\/\w+\/\d+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
 def isVelogArticle(url):
     url_rex = r"https:\/\/velog.io\/@\S+\/\S+"
     url_match = re.search(url_rex, url)
@@ -113,7 +121,15 @@ def crawling(url):
                 "genre" : None
             }        
 
-        # elif url.startswith("https://blog.naver.com/") : #잘 안됨
+        # # publishedDate 어떻게 처리할 지 논의 필요
+        # elif isNaverArticle(url): 
+        #     #iframe 안에 존재하는 새로운 url 찾기
+        #     redirect_url = "https://blog.naver.com" + soup.select_one('iframe#mainFrame')['src']
+
+        #     response = requests.get(redirect_url, headers=header)
+        #     html = response.text
+        #     soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
+        
         #     result = {
         #         "type" : "article",
         #         "page_url" : url,
