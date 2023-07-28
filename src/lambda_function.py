@@ -273,11 +273,23 @@ def crawling(url):
 
         else :
             result = {
-                "type" : "other",
-                "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "description" : soup.select_one('meta[property="og:description"]')['content'] 
+                "type": "other",
+                "page_url": url,
             }
+            
+            try:
+                result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError):
+                result["title"] = None
+
+            try:
+                result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError):
+                result["thumbnail_url"] = None
+                
+            try:
+                result["description"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError):
+                result["description"] = None
 
         return result
