@@ -56,6 +56,14 @@ def isBrunchArticle(url):
     else:
         return False;
 
+def isNaverTvVideo(url):
+    url_rex = r"https:\/\/tv.naver.com\/v\/\S+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
 def crawling(url):
 
     result = {}
@@ -88,7 +96,7 @@ def crawling(url):
                 "genre" : soup.select_one('meta[itemprop="genre"]')['content']
             }
 
-        elif url.startswith("https://tv.naver.com/") :
+        elif isNaverTvVideo(url):
             result = {
                 "type" : "video",
                 "page_url" : url,
