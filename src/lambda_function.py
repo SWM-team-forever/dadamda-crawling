@@ -132,6 +132,8 @@ def crawling(url):
             regex = r'"released_at":"([^"]+)"'
             match = re.search(regex, html)
 
+            kst_time_formatted = ""
+
             if match:
                 published_date = match.group(1)
 
@@ -142,6 +144,7 @@ def crawling(url):
                 kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
 
             # author_image_url 찾기
+            author_image_url = ""
             author_image_url_regex = r"https://velog.velcdn.com/images/\w+/profile/\S+\.\w+"
             author_image_url_match = re.search(author_image_url_regex, html)
 
@@ -174,6 +177,7 @@ def crawling(url):
             # 한국 시간을 문자열로 변환하여 MySQL TIMESTAMP 타입에 맞는 형태로 표현
             published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
 
+            author_image_url = ""
             author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
             author_image_url_match = re.search(author_image_url_regex, html)
 
@@ -208,6 +212,7 @@ def crawling(url):
             # 한국 시간을 문자열로 변환하여 출력
             published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
 
+            author_image_url = ""
             author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
             author_image_url_match = re.search(author_image_url_regex, html)
 
