@@ -92,8 +92,13 @@ def crawling(url):
 
                 # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
                 kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-            else:
-                print("HTML에서 'updated_at' 값을 찾을 수 없습니다.")
+
+            # author_image_url 찾기
+            author_image_url_regex = r"https://velog.velcdn.com/images/\w+/profile/\S+\.\w+"
+            author_image_url_match = re.search(author_image_url_regex, html)
+
+            if author_image_url_match:
+                author_image_url = author_image_url_match.group()
 
             result = {
                 "type" : "article",
@@ -102,12 +107,31 @@ def crawling(url):
                 "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
                 "description" : soup.select_one('meta[property="og:description"]')['content'],
                 "author" : soup.select_one('.username').text,
-                "author_image_url" : None,
+                "author_image_url" : author_image_url,
                 "blog_name" : soup.select_one('.user-logo').text,
                 "site_name" : "Velog",
                 "published_date" : kst_time_formatted, 
             }
         elif url.find(".tistory.com") != -1 :
+
+            # 주어진 RFC 3339 형식의 시간
+            rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
+
+            # RFC 3339 형식을 파싱하여 datetime 객체로 변환
+            rfc3339_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M:%S%z")
+
+            # 한국 시간으로 변환 (시간대 정보를 제거하고 9시간을 더함)
+            kst_time = rfc3339_time.astimezone(timezone(timedelta(hours=9)))
+
+            # 한국 시간을 문자열로 변환하여 MySQL TIMESTAMP 타입에 맞는 형태로 표현
+            published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
+            author_image_url_match = re.search(author_image_url_regex, html)
+
+            if author_image_url_match:
+                author_image_url = author_image_url_match.group(1)
+
             result = {
                 "type" : "article",
                 "page_url" : url,
@@ -115,25 +139,45 @@ def crawling(url):
                 "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
                 "description" : soup.select_one('meta[property="og:description"]')['content'],
                 "author" : soup.select_one('meta[property="og.article.author"]')['content'],
-                "author_image_url" : None,
+                "author_image_url" : author_image_url,
                 "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
                 "site_name" : "Tistory",
-                "published_date" : soup.select_one('meta[property="article:published_time"]')['content'], #2021-03-05T10:53:30+09:00
+                "published_date" : published_date
             }
 
         #브런치
         elif url.startswith("https://brunch.co.kr/") :
+
+            # 주어진 RFC 3339 형식의 시간
+            rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
+
+            # RFC 3339 형식을 파싱하여 datetime 객체로 변환
+            rfc3339_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M%z")
+
+            # 한국 시간으로 변환 (시간대 정보를 제거하고 9시간을 더함)
+            kst_time = rfc3339_time.astimezone(timezone(timedelta(hours=9)))
+
+            # 한국 시간을 문자열로 변환하여 출력
+            published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
+            author_image_url_match = re.search(author_image_url_regex, html)
+
+            if author_image_url_match:
+                author_image_url = author_image_url_match.group(1)
+
+
             result = {
                 "type" : "article",
                 "page_url" : url,
                 "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][:2],
                 "description" : soup.select_one('meta[property="og:description"]')['content'],
                 "author" : soup.select_one('meta[name="og:article:author"]')['content'],
-                "author_image_url" : None,
+                "author_image_url" : author_image_url,
                 "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
                 "site_name" : "Brunch",
-                "published_date" : soup.select_one('.date').text, #'2시간전'
+                "published_date" : published_date
             }
 
              #11번가
