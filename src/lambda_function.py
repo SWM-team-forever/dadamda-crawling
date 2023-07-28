@@ -16,6 +16,21 @@ def lambda_handler(event, context):
         'body': json.dumps(crawling(url), ensure_ascii=False)
     }
 
+def isCoupangProduct(url):
+    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
+def is11stProduct(url):
+    url_rex = r"https:\/\/www.11st.co.kr\/products\/\S+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
 
 def crawling(url):
 
@@ -182,7 +197,7 @@ def crawling(url):
             }
 
              #11번가
-        elif url.startswith("https://www.11st.co.kr/"):
+        elif is11stProduct(url):
             result = {
                 "type" : "product",
                 "page_url" : url,
@@ -213,11 +228,3 @@ def crawling(url):
             }
 
         return result
-
-def isCoupangProduct(url):
-    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
-    url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
