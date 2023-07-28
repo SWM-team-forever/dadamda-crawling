@@ -48,6 +48,14 @@ def isTistoryArticle(url):
     else:
         return False;
 
+def isBrunchArticle(url):
+    url_rex = r"https:\/\/brunch.co.kr\/@\S+\/\d+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
 def crawling(url):
 
     result = {}
@@ -178,7 +186,7 @@ def crawling(url):
             }
 
         #브런치
-        elif url.startswith("https://brunch.co.kr/") :
+        elif isBrunchArticle(url):
 
             # 주어진 RFC 3339 형식의 시간
             rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
