@@ -159,12 +159,12 @@ def crawling(url):
 
             # 한국 시간을 문자열로 변환하여 출력
             published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-
-            author_image_url_regex = r"https://tistory1.daumcdn.net/tistory/\w{7}/attach/\w{32}"
+            
+            author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
             author_image_url_match = re.search(author_image_url_regex, html)
 
             if author_image_url_match:
-                author_image_url = author_image_url_match.group()
+                author_image_url = author_image_url_match.group(1)
 
 
             result = {
