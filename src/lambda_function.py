@@ -32,6 +32,14 @@ def is11stProduct(url):
     else:
         return False;
 
+def isVelogArticle(url):
+    url_rex = r"https:\/\/velog.io\/@\S+\/\S+"
+    url_match = re.search(url_rex, url)
+    if(url_match):
+        return True;
+    else:
+        return False;
+
 def crawling(url):
 
     result = {}
@@ -94,7 +102,7 @@ def crawling(url):
         #         "published_date" : soup.select_one('.se_publishDate').text, 
         #     }
 
-        elif url.startswith("https://velog.io/") :
+        elif isVelogArticle(url):
             
             # publishedDate 찾기
             regex = r'"released_at":"([^"]+)"'
