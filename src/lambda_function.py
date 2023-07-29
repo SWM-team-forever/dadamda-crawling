@@ -16,53 +16,45 @@ def lambda_handler(event, context):
         'body': json.dumps(crawling(url), ensure_ascii=False)
     }
 
-def isCoupangProduct(url):
-    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
+def isNaverTvVideo(url):
+    url_rex = r"https:\/\/tv.naver.com\/v\/\S+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
-def is11stProduct(url):
-    url_rex = r"https:\/\/www.11st.co.kr\/products\/\S+"
+def isNaverArticle(url):
+    url_rex = r"https:\/\/blog.naver.com\/\w+\/\d+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
 def isVelogArticle(url):
     url_rex = r"https:\/\/velog.io\/@\S+\/\S+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
 def isTistoryArticle(url):
     url_rex = r"https:\/\/\S+.tistory.com\/\d+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
 def isBrunchArticle(url):
     url_rex = r"https:\/\/brunch.co.kr\/@\S+\/\d+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
-def isNaverTvVideo(url):
-    url_rex = r"https:\/\/tv.naver.com\/v\/\S+"
+def isCoupangProduct(url):
+    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
+
+def is11stProduct(url):
+    url_rex = r"https:\/\/www.11st.co.kr\/products\/\S+"
+    url_match = re.search(url_rex, url)
+    return bool(url_match)
+
+def isGmarketProduct(url):
+    url_rex = r"https?:\/\/item.gmarket.co.kr\/Item\?goodscode=\S+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
 
 def crawling(url):
 
@@ -113,7 +105,15 @@ def crawling(url):
                 "genre" : None
             }        
 
-        # elif url.startswith("https://blog.naver.com/") : #잘 안됨
+        # # publishedDate 어떻게 처리할 지 논의 필요
+        # elif isNaverArticle(url): 
+        #     #iframe 안에 존재하는 새로운 url 찾기
+        #     redirect_url = "https://blog.naver.com" + soup.select_one('iframe#mainFrame')['src']
+
+        #     response = requests.get(redirect_url, headers=header)
+        #     html = response.text
+        #     soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
+        
         #     result = {
         #         "type" : "article",
         #         "page_url" : url,
@@ -255,13 +255,36 @@ def crawling(url):
                 "site_name" : "Coupang",
             }
 
-        else :
+        #G마켓
+        elif isGmarketProduct(url):
             result = {
-                "type" : "other",
+                "type" : "product",
                 "page_url" : url,
                 "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "description" : soup.select_one('meta[property="og:description"]')['content'] 
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][2:],
+                "price" : soup.select_one('meta[property="og:description"]')['content'], #9,980원
+                "site_name" : "Gmarket",
             }
+
+        else :
+            result = {
+                "type": "other",
+                "page_url": url,
+            }
+            
+            try:
+                result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError):
+                result["title"] = None
+
+            try:
+                result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError):
+                result["thumbnail_url"] = None
+                
+            try:
+                result["description"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError):
+                result["description"] = None
 
         return result
