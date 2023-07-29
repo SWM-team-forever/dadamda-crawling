@@ -16,61 +16,45 @@ def lambda_handler(event, context):
         'body': json.dumps(crawling(url), ensure_ascii=False)
     }
 
-def isCoupangProduct(url):
-    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
+def isNaverTvVideo(url):
+    url_rex = r"https:\/\/tv.naver.com\/v\/\S+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
-
-def is11stProduct(url):
-    url_rex = r"https:\/\/www.11st.co.kr\/products\/\S+"
-    url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
 def isNaverArticle(url):
     url_rex = r"https:\/\/blog.naver.com\/\w+\/\d+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
 def isVelogArticle(url):
     url_rex = r"https:\/\/velog.io\/@\S+\/\S+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
 def isTistoryArticle(url):
     url_rex = r"https:\/\/\S+.tistory.com\/\d+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
 def isBrunchArticle(url):
     url_rex = r"https:\/\/brunch.co.kr\/@\S+\/\d+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
-def isNaverTvVideo(url):
-    url_rex = r"https:\/\/tv.naver.com\/v\/\S+"
+def isCoupangProduct(url):
+    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
+
+def is11stProduct(url):
+    url_rex = r"https:\/\/www.11st.co.kr\/products\/\S+"
+    url_match = re.search(url_rex, url)
+    return bool(url_match)
+
+def isGmarketProduct(url):
+    url_rex = r"https?:\/\/item.gmarket.co.kr\/Item\?goodscode=\S+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
 
 def crawling(url):
 
@@ -269,6 +253,17 @@ def crawling(url):
                 "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
                 "price" : soup.select_one("span.total-price > strong").text, #3,999,000원
                 "site_name" : "Coupang",
+            }
+
+        #G마켓
+        elif isGmarketProduct(url):
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][2:],
+                "price" : soup.select_one('meta[property="og:description"]')['content'], #9,980원
+                "site_name" : "Gmarket",
             }
 
         else :
