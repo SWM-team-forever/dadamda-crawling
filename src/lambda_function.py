@@ -1,7 +1,7 @@
 import json
 import requests
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 
 def lambda_handler(event, context):
