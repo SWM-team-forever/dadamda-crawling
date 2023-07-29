@@ -64,6 +64,11 @@ def isNaverTvVideo(url):
     else:
         return False;
 
+def isAuctionProduct(url):
+    url_rex = r"https?:\/\/itempage3.auction.co.kr\/detailview.aspx\?itemno=\S+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
+
 def crawling(url):
 
     result = {}
@@ -77,8 +82,13 @@ def crawling(url):
 
     if response.status_code == 200:
         html = response.text
-        soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
 
+        if response.encoding.lower() == 'utf-8':
+            soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
+    
+        elif response.encoding.lower() == 'ks_c_5601-1987':
+            soup = BeautifulSoup(response.content.decode('ks_c_5601-1987', 'replace'), 'html.parser')
+       
         if url.startswith("https://www.youtube.com/") :
             result = {
                 "type" : "video",
@@ -254,7 +264,18 @@ def crawling(url):
                 "price" : soup.select_one("span.total-price > strong").text, #3,999,000원
                 "site_name" : "Coupang",
             }
-
+        
+        #옥션
+        elif isAuctionProduct(url):
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][2:],
+                "price" : soup.select_one('meta[property="og:description"]')['content'], #9,980원
+                "site_name" : "Gmarket",
+            }
+        
         else :
             result = {
                 "type" : "other",
