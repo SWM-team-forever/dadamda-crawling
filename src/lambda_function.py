@@ -61,6 +61,11 @@ def isAuctionProduct(url):
     url_match = re.search(url_rex, url, re.IGNORECASE)
     return bool(url_match)
 
+def isTmonProduct(url):
+    url_rex = r"https?:\/\/www.tmon.co.kr\/deal\/\d+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
+
 def crawling(url):
 
     result = {}
@@ -286,6 +291,16 @@ def crawling(url):
                 "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][2:],
                 "price" : soup.select_one('meta[property="og:description"]')['content'], #9,980원
                 "site_name" : "Gmarket",
+            }
+        #티몬
+        elif isTmonProduct(url):
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "price" : soup.select_one('meta[property="og:price"]')['content'],
+                "site_name" : "Tmon",
             }
 
         else :
