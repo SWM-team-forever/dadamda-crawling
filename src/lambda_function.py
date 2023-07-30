@@ -66,6 +66,12 @@ def isTmonProduct(url):
     url_match = re.search(url_rex, url, re.IGNORECASE)
     return bool(url_match)
 
+def isWemakepriceProduct(url):
+    url_rex = r"https?:\/\/front.wemakeprice.com\/deal\/\d+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
+
+
 def crawling(url):
 
     result = {}
@@ -302,6 +308,24 @@ def crawling(url):
                 "price" : soup.select_one('meta[property="og:price"]')['content'],
                 "site_name" : "Tmon",
             }
+        
+        #위메프 (상품 구현, 여행레저 미구현)
+        elif isWemakepriceProduct(url):
+            
+            item_price_regex = r'("salePrice":)(\d+)'
+            item_price_match = re.search(item_price_regex, html)
+            
+            if item_price_match:
+                price = item_price_match.group(2)
+                
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "price" : price,
+                "site_name" : "Wemakeprice",  
+            }        
 
         else :
             result = {
