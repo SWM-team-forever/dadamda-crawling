@@ -71,6 +71,10 @@ def isWemakepriceProduct(url):
     url_match = re.search(url_rex, url, re.IGNORECASE)
     return bool(url_match)
 
+def isNaverProduct(url):
+    url_rex = r"https?:\/\/\w+.naver.com\/\w+\/products\/\d+\?\S+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
 
 def crawling(url):
 
