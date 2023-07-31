@@ -329,7 +329,24 @@ def crawling(url):
                 "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
                 "price" : price,
                 "site_name" : "Wemakeprice",  
-            }        
+            }  
+        
+        #네이버 스마트스토어
+        elif isNaverProduct(url):
+            item_price_regex = r'("price":)(\d+)'
+            item_price_match = re.search(item_price_regex, html)
+            
+            if item_price_match:
+                price = item_price_match.group(2)
+
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "price" : price,
+                "site_name" : "NaverSmartstore",  
+            }      
 
         else :
             result = {
