@@ -1,7 +1,7 @@
 import json
 import requests
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 
 def lambda_handler(event, context):
@@ -16,53 +16,65 @@ def lambda_handler(event, context):
         'body': json.dumps(crawling(url), ensure_ascii=False)
     }
 
-def isCoupangProduct(url):
-    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
+def isNaverTvVideo(url):
+    url_rex = r"https:\/\/tv.naver.com\/v\/\S+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
-def is11stProduct(url):
-    url_rex = r"https:\/\/www.11st.co.kr\/products\/\S+"
+def isNaverArticle(url):
+    url_rex = r"https:\/\/blog.naver.com\/\w+\/\d+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
 def isVelogArticle(url):
     url_rex = r"https:\/\/velog.io\/@\S+\/\S+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
 def isTistoryArticle(url):
     url_rex = r"https:\/\/\S+.tistory.com\/\d+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
 def isBrunchArticle(url):
     url_rex = r"https:\/\/brunch.co.kr\/@\S+\/\d+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
 
-def isNaverTvVideo(url):
-    url_rex = r"https:\/\/tv.naver.com\/v\/\S+"
+def isCoupangProduct(url):
+    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
     url_match = re.search(url_rex, url)
-    if(url_match):
-        return True;
-    else:
-        return False;
+    return bool(url_match)
+
+def is11stProduct(url):
+    url_rex = r"https:\/\/www.11st.co.kr\/products\/\S+"
+    url_match = re.search(url_rex, url)
+    return bool(url_match)
+
+def isGmarketProduct(url):
+    url_rex = r"https?:\/\/item.gmarket.co.kr\/Item\?goodscode=\S+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
+
+def isAuctionProduct(url):
+    url_rex = r"https?:\/\/itempage3.auction.co.kr\/detailview.aspx\?itemno=\S+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
+
+def isTmonProduct(url):
+    url_rex = r"https?:\/\/www.tmon.co.kr\/deal\/\d+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
+
+def isWemakepriceProduct(url):
+    url_rex = r"https?:\/\/front.wemakeprice.com\/deal\/\d+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
+
+def isNaverProduct(url):
+    url_rex = r"https?:\/\/\w+.naver.com\/\w+\/products\/\d+\?\S+"
+    url_match = re.search(url_rex, url, re.IGNORECASE)
+    return bool(url_match)
 
 def crawling(url):
 
@@ -77,8 +89,13 @@ def crawling(url):
 
     if response.status_code == 200:
         html = response.text
-        soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
 
+        if response.encoding.lower() == 'utf-8':
+            soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
+    
+        elif response.encoding.lower() == 'ks_c_5601-1987':
+            soup = BeautifulSoup(response.content.decode('ks_c_5601-1987', 'replace'), 'html.parser')
+       
         if url.startswith("https://www.youtube.com/") :
             result = {
                 "type" : "video",
@@ -113,7 +130,15 @@ def crawling(url):
                 "genre" : None
             }        
 
-        # elif url.startswith("https://blog.naver.com/") : #잘 안됨
+        # # publishedDate 어떻게 처리할 지 논의 필요
+        # elif isNaverArticle(url): 
+        #     #iframe 안에 존재하는 새로운 url 찾기
+        #     redirect_url = "https://blog.naver.com" + soup.select_one('iframe#mainFrame')['src']
+
+        #     response = requests.get(redirect_url, headers=header)
+        #     html = response.text
+        #     soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
+        
         #     result = {
         #         "type" : "article",
         #         "page_url" : url,
@@ -254,14 +279,94 @@ def crawling(url):
                 "price" : soup.select_one("span.total-price > strong").text, #3,999,000원
                 "site_name" : "Coupang",
             }
-
-        else :
+        
+        #옥션
+        elif isAuctionProduct(url):
             result = {
-                "type" : "other",
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][2:],
+                "price" : soup.select_one('meta[property="og:description"]')['content'], #9,980원
+                "site_name" : "Gmarket",
+            }
+
+        #G마켓
+        elif isGmarketProduct(url):
+
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][2:],
+                "price" : soup.select_one('meta[property="og:description"]')['content'], #9,980원
+                "site_name" : "Gmarket",
+            }
+        #티몬
+        elif isTmonProduct(url):
+            result = {
+                "type" : "product",
                 "page_url" : url,
                 "title" : soup.select_one('meta[property="og:title"]')['content'],
                 "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "description" : soup.select_one('meta[property="og:description"]')['content'] 
+                "price" : soup.select_one('meta[property="og:price"]')['content'],
+                "site_name" : "Tmon",
             }
+        
+        #위메프 (상품 구현, 여행레저 미구현)
+        elif isWemakepriceProduct(url):
+            
+            item_price_regex = r'("salePrice":)(\d+)'
+            item_price_match = re.search(item_price_regex, html)
+            
+            if item_price_match:
+                price = item_price_match.group(2)
+                
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "price" : price,
+                "site_name" : "Wemakeprice",  
+            }  
+        
+        #네이버 스마트스토어
+        elif isNaverProduct(url):
+            item_price_regex = r'("price":)(\d+)'
+            item_price_match = re.search(item_price_regex, html)
+            
+            if item_price_match:
+                price = item_price_match.group(2)
+
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "title" : soup.select_one('meta[property="og:title"]')['content'],
+                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
+                "price" : price,
+                "site_name" : "NaverSmartstore",  
+            }      
+
+        else :
+            result = {
+                "type": "other",
+                "page_url": url,
+            }
+            
+            try:
+                result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError):
+                result["title"] = None
+
+            try:
+                result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError):
+                result["thumbnail_url"] = None
+                
+            try:
+                result["description"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError):
+                result["description"] = None
 
         return result
