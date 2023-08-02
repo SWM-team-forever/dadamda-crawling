@@ -115,22 +115,25 @@ def crawling(url):
             api_url = "https://www.googleapis.com/youtube/v3/videos?id=" + id + "&key=" + google_api_key +"&part=snippet,statistics"
             response = requests.get(api_url)
             json_obj = json.loads(response.text)
-            
-            #게시일 형식 변경
-            published_date = json_obj['items'][0]['snippet']['publishedAt']
-            utc_time = datetime.strptime(published_date, "%Y-%m-%dT%H:%M:%SZ")
-            kst_time = utc_time + timedelta(hours=9)
-            # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
-            kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
 
             result = {
                 "type" : "video", 
                 "page_url" : url,
                 "embed_url" : "https://www.youtube.com/embed/" + id,
                 "channel_image_url" : None,
-                "published_date" : kst_time_formatted,
                 "site_name" : "YouTube",
             }
+            
+            try:
+                #게시일 형식 변경
+                published_date = json_obj['items'][0]['snippet']['publishedAt']
+                utc_time = datetime.strptime(published_date, "%Y-%m-%dT%H:%M:%SZ")
+                kst_time = utc_time + timedelta(hours=9)
+                # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
+                kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+                result["published_date"] = kst_time_formatted
+            except (TypeError, KeyError):
+                result["published_date"] = None
             
             try: result["title"] = json_obj['items'][0]['snippet']['title']
             except (TypeError, KeyError): result["title"] = None
