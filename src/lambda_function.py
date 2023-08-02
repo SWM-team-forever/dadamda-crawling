@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 import os
 
-google_api_key = os.environ['google_api_key']
+google_api_key = os.environ['GOOGLE_API_KEY']
 
 def lambda_handler(event, context):
     
@@ -122,38 +122,62 @@ def crawling(url):
             kst_time = utc_time + timedelta(hours=9)
             # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
             kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-            
+
             result = {
                 "type" : "video", 
                 "page_url" : url,
-                "title" : json_obj['items'][0]['snippet']['title'],
-                "thumbnail_url" : json_obj['items'][0]['snippet']['thumbnails']['high']['url'],
-                "description" : json_obj['items'][0]['snippet']['description'],
                 "embed_url" : "https://www.youtube.com/embed/" + id,
-                "channel_name" : json_obj['items'][0]['snippet']['channelTitle'],
                 "channel_image_url" : None,
-                "watched_cnt" : json_obj['items'][0]['statistics']['viewCount'],
                 "published_date" : kst_time_formatted,
                 "site_name" : "YouTube",
             }
+            
+            try: result["title"] = json_obj['items'][0]['snippet']['title']
+            except (TypeError, KeyError): result["title"] = None
 
+            try: result["thumbnail_url"] = json_obj['items'][0]['snippet']['thumbnails']['high']['url']
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            try: result["description"] = json_obj['items'][0]['snippet']['description']
+            except (TypeError, KeyError): result["description"] = None
+
+            try: result["channel_name"] = json_obj['items'][0]['snippet']['channelTitle']
+            except (TypeError, KeyError): result["channel_name"] = None
+
+            try: result["watched_cnt"] = json_obj['items'][0]['statistics']['viewCount']
+            except (TypeError, KeyError): result["watched_cnt"] = None
 
         elif isNaverTvVideo(url):
+
             result = {
                 "type" : "video",
                 "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "description" : soup.select_one('meta[property="og:description"]')['content'],
-                "embed_url" : soup.select_one('meta[property="og:video:url"]')['content'],
-                "channel_name" : soup.select_one('meta[property="og:article:author"]')['content'],
-                "channel_image_url" : soup.select_one('meta[property="og:article:author:image"]')['content'],
-                "watched_cnt" : soup.select_one('meta[property="naver:video:play_count"]')['content'],
-                "play_time" : soup.select_one('meta[property="naver:video:play_time"]')['content'],
-                "published_date" : soup.select_one(".date").text.replace('.', '-', 2)[:10], #2023.07.17. -> 2023-07-17
                 "site_name" : "Naver TV",
-                "genre" : None
-            }        
+            }
+
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError): result["description"] = None
+
+            try: result["channel_name"] = soup.select_one('meta[property="og:article:author"]')['content']
+            except (TypeError, KeyError): result["channel_name"] = None
+
+            try: result["channel_image_url"] = soup.select_one('meta[property="og:article:author:image"]')['content']
+            except (TypeError, KeyError): result["channel_image_url"] = None
+
+            try: result["watched_cnt"] = soup.select_one('meta[property="naver:video:play_count"]')['content']
+            except (TypeError, KeyError): result["watched_cnt"] = None
+
+            try: result["play_time"] = soup.select_one('meta[property="naver:video:play_time"]')['content']
+            except (TypeError, KeyError): result["play_time"] = None
+
+            try: result["published_date"] = soup.select_one(".date").text.replace('.', '-', 2)[:10]
+            except (TypeError, KeyError): result["published_date"] = None 
 
         # # publishedDate 어떻게 처리할 지 논의 필요
         # elif isNaverArticle(url): 
@@ -177,113 +201,163 @@ def crawling(url):
         #     }
 
         elif isVelogArticle(url):
-            
-            # publishedDate 찾기
-            regex = r'"released_at":"([^"]+)"'
-            match = re.search(regex, html)
-
-            kst_time_formatted = ""
-
-            if match:
-                published_date = match.group(1)
-
-                utc_time = datetime.strptime(published_date, "%Y-%m-%dT%H:%M:%S.%fZ")
-                kst_time = utc_time + timedelta(hours=9)
-
-                # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
-                kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-
-            # author_image_url 찾기
-            author_image_url = ""
-            author_image_url_regex = r"https://velog.velcdn.com/images/\w+/profile/\S+\.\w+"
-            author_image_url_match = re.search(author_image_url_regex, html)
-
-            if author_image_url_match:
-                author_image_url = author_image_url_match.group()
 
             result = {
                 "type" : "article",
                 "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "description" : soup.select_one('meta[property="og:description"]')['content'],
-                "author" : soup.select_one('.username').text,
-                "author_image_url" : author_image_url,
                 "blog_name" : soup.select_one('.user-logo').text,
                 "site_name" : "Velog",
-                "published_date" : kst_time_formatted, 
             }
+            
+            try:
+                # publishedDate 찾기
+                regex = r'"released_at":"([^"]+)"'
+                match = re.search(regex, html)
+
+                kst_time_formatted = ""
+
+                if match:
+                    published_date = match.group(1)
+
+                    utc_time = datetime.strptime(published_date, "%Y-%m-%dT%H:%M:%S.%fZ")
+                    kst_time = utc_time + timedelta(hours=9)
+
+                    # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
+                    kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+                    result["published_date"] = kst_time_formatted
+            except (TypeError, KeyError): 
+                result["published_date"] = None
+
+            try:
+                # author_image_url 찾기
+                author_image_url = ""
+                author_image_url_regex = r"https://velog.velcdn.com/images/\w+/profile/\S+\.\w+"
+                author_image_url_match = re.search(author_image_url_regex, html)
+
+                if author_image_url_match:
+                    author_image_url = author_image_url_match.group()
+                    result["author_image_url"] = author_image_url
+            except (TypeError, KeyError):
+                result["author_image_url"] = None
+
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError): result["description"] = None
+
+            try: result["author"] = soup.select_one('.username').text
+            except (TypeError, KeyError): result["author"] = None
+
+            try: result["blog_name"] = soup.select_one('.user-logo').text
+            except (TypeError, KeyError): result["blog_name"] = None
+
         elif isTistoryArticle(url):
-
-            # 주어진 RFC 3339 형식의 시간
-            rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
-
-            # RFC 3339 형식을 파싱하여 datetime 객체로 변환
-            rfc3339_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M:%S%z")
-
-            # 한국 시간으로 변환 (시간대 정보를 제거하고 9시간을 더함)
-            kst_time = rfc3339_time.astimezone(timezone(timedelta(hours=9)))
-
-            # 한국 시간을 문자열로 변환하여 MySQL TIMESTAMP 타입에 맞는 형태로 표현
-            published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-
-            author_image_url = ""
-            author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
-            author_image_url_match = re.search(author_image_url_regex, html)
-
-            if author_image_url_match:
-                author_image_url = author_image_url_match.group(1)
 
             result = {
                 "type" : "article",
                 "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "description" : soup.select_one('meta[property="og:description"]')['content'],
-                "author" : soup.select_one('meta[property="og.article.author"]')['content'],
-                "author_image_url" : author_image_url,
-                "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
                 "site_name" : "Tistory",
-                "published_date" : published_date
             }
+
+            try:
+                # 주어진 RFC 3339 형식의 시간
+                rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
+
+                # RFC 3339 형식을 파싱하여 datetime 객체로 변환
+                rfc3339_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M:%S%z")
+
+                # 한국 시간으로 변환 (시간대 정보를 제거하고 9시간을 더함)
+                kst_time = rfc3339_time.astimezone(timezone(timedelta(hours=9)))
+
+                # 한국 시간을 문자열로 변환하여 MySQL TIMESTAMP 타입에 맞는 형태로 표현
+                published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+                result["published_date"] = published_date
+            except (TypeError, KeyError):
+                result["published_date"] = None
+            
+            try:
+                author_image_url = ""
+                author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
+                author_image_url_match = re.search(author_image_url_regex, html)
+
+                if author_image_url_match:
+                    author_image_url = author_image_url_match.group(1)
+                    result["author_image_url"] = author_image_url
+            except (TypeError, KeyError):
+                result["author_image_url"] = None
+            
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError): result["description"] = None
+
+            try: result["author"] = soup.select_one('meta[property="og:article:author"]')['content']
+            except (TypeError, KeyError): result["author"] = None
+
+            try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
+            except (TypeError, KeyError): result["blog_name"] = None
 
         #브런치
         elif isBrunchArticle(url):
 
-            # 주어진 RFC 3339 형식의 시간
-            rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
-
-            # RFC 3339 형식을 파싱하여 datetime 객체로 변환
-            rfc3339_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M%z")
-
-            # 한국 시간으로 변환 (시간대 정보를 제거하고 9시간을 더함)
-            kst_time = rfc3339_time.astimezone(timezone(timedelta(hours=9)))
-
-            # 한국 시간을 문자열로 변환하여 출력
-            published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-
-            author_image_url = ""
-            author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
-            author_image_url_match = re.search(author_image_url_regex, html)
-
-            if author_image_url_match:
-                author_image_url = author_image_url_match.group(1)
-
-
             result = {
                 "type" : "article",
                 "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][:2],
-                "description" : soup.select_one('meta[property="og:description"]')['content'],
-                "author" : soup.select_one('meta[name="og:article:author"]')['content'],
-                "author_image_url" : author_image_url,
-                "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
                 "site_name" : "Brunch",
-                "published_date" : published_date
             }
 
-             #11번가
+            try:
+                # 주어진 RFC 3339 형식의 시간
+                rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
+
+                # RFC 3339 형식을 파싱하여 datetime 객체로 변환
+                rfc3339_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M%z")
+
+                # 한국 시간으로 변환 (시간대 정보를 제거하고 9시간을 더함)
+                kst_time = rfc3339_time.astimezone(timezone(timedelta(hours=9)))
+
+                # 한국 시간을 문자열로 변환하여 출력
+                published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+                result["published_date"] = published_date
+            except (TypeError, KeyError):
+                result["published_date"] = None
+
+            try:
+                author_image_url = ""
+                author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
+                author_image_url_match = re.search(author_image_url_regex, html)
+
+                if author_image_url_match:
+                    author_image_url = author_image_url_match.group(1)
+                    result["author_image_url"] = author_image_url
+            except (TypeError, KeyError):
+                result["author_image_url"] = None
+
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content'][:2]
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError): result["description"] = None
+
+            try: result["author"] = soup.select_one('meta[name="og:article:author"]')['content']
+            except (TypeError, KeyError): result["author"] = None
+
+            try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
+            except (TypeError, KeyError): result["blog_name"] = None
+
+
+        #11번가
         elif is11stProduct(url):
             result = {
                 "type" : "product",
@@ -299,79 +373,117 @@ def crawling(url):
             result = {
                 "type" : "product",
                 "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "price" : soup.select_one("span.total-price > strong").text, #3,999,000원
                 "site_name" : "Coupang",
             }
+
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            try: result["price"] = soup.select_one("span.total-price > strong").text
+            except (TypeError, KeyError): result["price"] = None
         
         #옥션
         elif isAuctionProduct(url):
             result = {
                 "type" : "product",
                 "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][2:],
-                "price" : soup.select_one('meta[property="og:description"]')['content'], #9,980원
                 "site_name" : "Gmarket",
             }
+
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content'][2:]
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            try: result["price"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError): result["price"] = None
 
         #G마켓
         elif isGmarketProduct(url):
-
             result = {
                 "type" : "product",
                 "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'][2:],
-                "price" : soup.select_one('meta[property="og:description"]')['content'], #9,980원
                 "site_name" : "Gmarket",
             }
+
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content'][2:]
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            try: result["price"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError): result["price"] = None
+
         #티몬
         elif isTmonProduct(url):
             result = {
                 "type" : "product",
                 "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "price" : soup.select_one('meta[property="og:price"]')['content'],
                 "site_name" : "Tmon",
             }
+
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            try: result["price"] = soup.select_one('meta[property="og:price"]')['content']
+            except (TypeError, KeyError): result["price"] = None
         
         #위메프 (상품 구현, 여행레저 미구현)
         elif isWemakepriceProduct(url):
-            
-            item_price_regex = r'("salePrice":)(\d+)'
-            item_price_match = re.search(item_price_regex, html)
-            
-            if item_price_match:
-                price = item_price_match.group(2)
-                
-            result = {
-                "type" : "product",
-                "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "price" : price,
-                "site_name" : "Wemakeprice",  
-            }  
-        
-        #네이버 스마트스토어
-        elif isNaverProduct(url):
-            item_price_regex = r'("price":)(\d+)'
-            item_price_match = re.search(item_price_regex, html)
-            
-            if item_price_match:
-                price = item_price_match.group(2)
 
             result = {
                 "type" : "product",
                 "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "price" : price,
+                "site_name" : "Wemakeprice",  
+            }            
+            
+            try:
+                item_price_regex = r'("salePrice":)(\d+)'
+                item_price_match = re.search(item_price_regex, html)
+                
+                if item_price_match:
+                    price = item_price_match.group(2)
+                    result["price"] = price
+            except (TypeError, KeyError):
+                result["price"] = None
+            
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+        
+        #네이버 스마트스토어
+        elif isNaverProduct(url):
+            result = {
+                "type" : "product",
+                "page_url" : url,
                 "site_name" : "NaverSmartstore",  
             }      
+
+            try:
+                item_price_regex = r'("price":)(\d+)'
+                item_price_match = re.search(item_price_regex, html)
+                
+                if item_price_match:
+                    price = item_price_match.group(2)
+                    result["price"] = price
+            except (TypeError, KeyError):
+                result["price"] = None
+
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError): result["thumbnail_url"] = None
 
         else :
             result = {
@@ -379,19 +491,13 @@ def crawling(url):
                 "page_url": url,
             }
             
-            try:
-                result["title"] = soup.select_one('meta[property="og:title"]')['content']
-            except (TypeError, KeyError):
-                result["title"] = None
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
 
-            try:
-                result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
-            except (TypeError, KeyError):
-                result["thumbnail_url"] = None
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError): result["thumbnail_url"] = None
                 
-            try:
-                result["description"] = soup.select_one('meta[property="og:description"]')['content']
-            except (TypeError, KeyError):
-                result["description"] = None
+            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError): result["description"] = None
 
         return result
