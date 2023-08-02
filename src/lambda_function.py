@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 import os
 
-google_api_key = os.environ['google_api_key']
+google_api_key = os.environ['GOOGLE_API_KEY']
 
 def lambda_handler(event, context):
     
