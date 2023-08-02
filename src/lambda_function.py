@@ -205,7 +205,6 @@ def crawling(url):
             result = {
                 "type" : "article",
                 "page_url" : url,
-                "blog_name" : soup.select_one('.user-logo').text,
                 "site_name" : "Velog",
             }
             
