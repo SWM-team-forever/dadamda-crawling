@@ -150,6 +150,8 @@ def crawling(url):
             try: result["watched_cnt"] = json_obj['items'][0]['statistics']['viewCount']
             except (TypeError, KeyError): result["watched_cnt"] = None
 
+            return result
+
         elif isNaverTvVideo(url):
 
             result = {
@@ -182,6 +184,8 @@ def crawling(url):
             try: result["published_date"] = soup.select_one(".date").text.replace('.', '-', 2)[:10]
             except (TypeError, KeyError): result["published_date"] = None 
 
+            return result
+        
         # # publishedDate 어떻게 처리할 지 논의 필요
         # elif isNaverArticle(url): 
         #     #iframe 안에 존재하는 새로운 url 찾기
@@ -257,6 +261,8 @@ def crawling(url):
             try: result["blog_name"] = soup.select_one('.user-logo').text
             except (TypeError, KeyError): result["blog_name"] = None
 
+            return result
+        
         elif isTistoryArticle(url):
 
             result = {
@@ -307,6 +313,8 @@ def crawling(url):
             try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
             except (TypeError, KeyError): result["blog_name"] = None
 
+            return result
+        
         #브런치
         elif isBrunchArticle(url):
 
@@ -358,7 +366,8 @@ def crawling(url):
             try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
             except (TypeError, KeyError): result["blog_name"] = None
 
-
+            return result
+        
         #11번가
         elif is11stProduct(url):
             result = {
@@ -386,6 +395,8 @@ def crawling(url):
 
             try: result["price"] = soup.select_one("span.total-price > strong").text
             except (TypeError, KeyError): result["price"] = None
+
+            return result
         
         #옥션
         elif isAuctionProduct(url):
@@ -421,6 +432,8 @@ def crawling(url):
             try: result["price"] = soup.select_one('meta[property="og:description"]')['content']
             except (TypeError, KeyError): result["price"] = None
 
+            return result
+        
         #티몬
         elif isTmonProduct(url):
             result = {
@@ -462,6 +475,8 @@ def crawling(url):
 
             try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
             except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            return result
         
         #네이버 스마트스토어
         elif isNaverProduct(url):
@@ -487,6 +502,8 @@ def crawling(url):
             try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
             except (TypeError, KeyError): result["thumbnail_url"] = None
 
+            return result
+        
         else :
             result = {
                 "type": "other",
