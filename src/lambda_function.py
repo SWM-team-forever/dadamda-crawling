@@ -3,6 +3,9 @@ import requests
 import re
 from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
+import os
+
+google_api_key = os.environ['google_api_key']
 
 def lambda_handler(event, context):
     
@@ -15,6 +18,11 @@ def lambda_handler(event, context):
         },
         'body': json.dumps(crawling(url), ensure_ascii=False)
     }
+
+def isYoutubeVideo(url):
+    url_rex = r"https?:\/\/www.youtube.com\/watch\?v=([^&]+)"
+    url_match = re.search(url_rex, url)
+    return bool(url_match)
 
 def isNaverTvVideo(url):
     url_rex = r"https:\/\/tv.naver.com\/v\/\S+"
@@ -96,22 +104,39 @@ def crawling(url):
         elif response.encoding.lower() == 'ks_c_5601-1987':
             soup = BeautifulSoup(response.content.decode('ks_c_5601-1987', 'replace'), 'html.parser')
        
-        if url.startswith("https://www.youtube.com/") :
+        if isYoutubeVideo(url):
+            
+            #id찾기
+            id_regex = r"https?:\/\/www.youtube.com\/watch\?v=([^&]+)"
+            id_match = re.search(id_regex, url)
+            id = id_match.group(1)
+
+            #youtube api 호출
+            api_url = "https://www.googleapis.com/youtube/v3/videos?id=" + id + "&key=" + google_api_key +"&part=snippet,statistics"
+            response = requests.get(api_url)
+            json_obj = json.loads(response.text)
+            
+            #게시일 형식 변경
+            published_date = json_obj['items'][0]['snippet']['publishedAt']
+            utc_time = datetime.strptime(published_date, "%Y-%m-%dT%H:%M:%SZ")
+            kst_time = utc_time + timedelta(hours=9)
+            # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
+            kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+            
             result = {
-                "type" : "video",
+                "type" : "video", 
                 "page_url" : url,
-                "title" : soup.select_one('meta[property="og:title"]')['content'],
-                "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-                "description" : soup.select_one('meta[property="og:description"]')['content'],
-                "embed_url" : soup.select_one('meta[property="og:video:url"]')['content'],
-                "channel_name" : soup.select_one('link[itemprop="name"]')['content'],
+                "title" : json_obj['items'][0]['snippet']['title'],
+                "thumbnail_url" : json_obj['items'][0]['snippet']['thumbnails']['high']['url'],
+                "description" : json_obj['items'][0]['snippet']['description'],
+                "embed_url" : "https://www.youtube.com/embed/" + id,
+                "channel_name" : json_obj['items'][0]['snippet']['channelTitle'],
                 "channel_image_url" : None,
-                "watched_cnt" : soup.select_one('meta[itemprop="interactionCount"]')['content'],
-                "play_time" : None,
-                "published_date" : soup.select_one('meta[itemprop="datePublished"]')['content'], #2023-06-30
+                "watched_cnt" : json_obj['items'][0]['statistics']['viewCount'],
+                "published_date" : kst_time_formatted,
                 "site_name" : "YouTube",
-                "genre" : soup.select_one('meta[itemprop="genre"]')['content']
             }
+
 
         elif isNaverTvVideo(url):
             result = {
