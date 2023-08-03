@@ -84,6 +84,25 @@ def isNaverProduct(url):
     url_match = re.search(url_rex, url, re.IGNORECASE)
     return bool(url_match)
 
+def getNaverArticlePublishedDate(input_date):
+    now = datetime.now()
+
+    if input_date == "방금 전":
+        return now.strftime("%Y-%m-%d %H:%M:%S")
+    elif input_date.endswith("분 전"):
+        minutes_ago = int(input_date[0])
+        new_time = now - timedelta(minutes=minutes_ago)
+    elif input_date.endswith("시간 전"):
+        hours_ago = int(input_date[0])
+        new_time = now - timedelta(hours=hours_ago)
+    elif input_date.endswith("일 전"):
+        days_ago = int(input_date[0])
+        new_time = now - timedelta(days=days_ago)
+    else:
+        new_time = datetime.strptime(input_date, "%Y. %m. %d. %H:%M")
+    
+    return new_time.strftime("%Y-%m-%d %H:%M:%S")
+
 def crawling(url):
 
     result = {}
@@ -186,26 +205,41 @@ def crawling(url):
 
             return result
         
-        # # publishedDate 어떻게 처리할 지 논의 필요
-        # elif isNaverArticle(url): 
-        #     #iframe 안에 존재하는 새로운 url 찾기
-        #     redirect_url = "https://blog.naver.com" + soup.select_one('iframe#mainFrame')['src']
+        elif isNaverArticle(url): 
+            #iframe 안에 존재하는 새로운 url 찾기
+            redirect_url = "https://blog.naver.com" + soup.select_one('iframe#mainFrame')['src']
 
-        #     response = requests.get(redirect_url, headers=header)
-        #     html = response.text
-        #     soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
+            response = requests.get(redirect_url, headers=header)
+            html = response.text
+            soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
         
-        #     result = {
-        #         "type" : "article",
-        #         "page_url" : url,
-        #         "title" : soup.select_one('meta[property="og:title"]')['content'],
-        #         "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-        #         "description" : soup.select_one('meta[property="og:description"]')['content'],
-        #         "author" : soup.select_one('meta[property="naverblog:nickname"]')['content'],
-        #         "author_image_url" : soup.select_one('meta[property="naverblog:profile_image"]')['content'],
-        #         "blog_name" : soup.select_one('meta[property="og:site_name"]')['content'],
-        #         "published_date" : soup.select_one('.se_publishDate').text, 
-        #     }
+            result = {
+                "type" : "article",
+                "page_url" : url,
+            }
+
+            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError): result["title"] = None
+
+            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError): result["thumbnail_url"] = None
+
+            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError): result["description"] = None
+
+            try: result["author"] = soup.select_one('meta[property="naverblog:nickname"]')['content']
+            except (TypeError, KeyError): result["author"] = None
+
+            try: result["author_image_url"] = soup.select_one('meta[property="naverblog:profile_image"]')['content']
+            except (TypeError, KeyError): result["author_image_url"] = None
+
+            try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
+            except (TypeError, KeyError): result["blog_name"] = None
+
+            try: result["published_date"] = getNaverArticlePublishedDate(soup.select_one('.se_publishDate').text)
+            except (TypeError, KeyError): result["published_date"] = None
+            
+            return result
 
         elif isVelogArticle(url):
 
