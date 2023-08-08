@@ -101,7 +101,7 @@ def getNaverArticlePublishedDate(input_date):
     else:
         new_time = datetime.strptime(input_date, "%Y. %m. %d. %H:%M")
     
-    return new_time.strftime("%Y-%m-%d %H:%M:%S")
+    return int(new_time.timestamp())
 
 def crawling(url):
 
@@ -144,13 +144,10 @@ def crawling(url):
             }
             
             try:
-                #게시일 형식 변경
+                #게시일 UnixTime으로 변경
                 published_date = json_obj['items'][0]['snippet']['publishedAt']
                 utc_time = datetime.strptime(published_date, "%Y-%m-%dT%H:%M:%SZ")
-                kst_time = utc_time + timedelta(hours=9)
-                # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
-                kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-                result["published_date"] = kst_time_formatted
+                result["published_date"] = int(utc_time.timestamp())
             except (TypeError, KeyError):
                 result["published_date"] = None
             
@@ -258,13 +255,9 @@ def crawling(url):
 
                 if match:
                     published_date = match.group(1)
-
                     utc_time = datetime.strptime(published_date, "%Y-%m-%dT%H:%M:%S.%fZ")
-                    kst_time = utc_time + timedelta(hours=9)
+                    result["published_date"] = int(utc_time.timestamp())
 
-                    # KST 시간을 가독성 좋은 형식으로 포맷 (예: YYYY-MM-DD HH:mm:ss)
-                    kst_time_formatted = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-                    result["published_date"] = kst_time_formatted
             except (TypeError, KeyError): 
                 result["published_date"] = None
 
@@ -306,18 +299,10 @@ def crawling(url):
             }
 
             try:
-                # 주어진 RFC 3339 형식의 시간
+                # UnixTime으로 변환
                 rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
-
-                # RFC 3339 형식을 파싱하여 datetime 객체로 변환
-                rfc3339_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M:%S%z")
-
-                # 한국 시간으로 변환 (시간대 정보를 제거하고 9시간을 더함)
-                kst_time = rfc3339_time.astimezone(timezone(timedelta(hours=9)))
-
-                # 한국 시간을 문자열로 변환하여 MySQL TIMESTAMP 타입에 맞는 형태로 표현
-                published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-                result["published_date"] = published_date
+                utc_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M:%S%z")
+                result["published_date"] = int(utc_time.timestamp())
             except (TypeError, KeyError):
                 result["published_date"] = None
             
@@ -359,18 +344,9 @@ def crawling(url):
             }
 
             try:
-                # 주어진 RFC 3339 형식의 시간
                 rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
-
-                # RFC 3339 형식을 파싱하여 datetime 객체로 변환
-                rfc3339_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M%z")
-
-                # 한국 시간으로 변환 (시간대 정보를 제거하고 9시간을 더함)
-                kst_time = rfc3339_time.astimezone(timezone(timedelta(hours=9)))
-
-                # 한국 시간을 문자열로 변환하여 출력
-                published_date = kst_time.strftime("%Y-%m-%d %H:%M:%S")
-                result["published_date"] = published_date
+                utc_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M%z")
+                result["published_date"] = int(utc_time.timestamp())
             except (TypeError, KeyError):
                 result["published_date"] = None
 
