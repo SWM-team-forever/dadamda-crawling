@@ -1,6 +1,7 @@
 import json
 import requests
 import re
+from isodate import parse_duration
 from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 import os
@@ -131,9 +132,15 @@ def crawling(url):
             id = id_match.group(1)
 
             #youtube api 호출
-            api_url = "https://www.googleapis.com/youtube/v3/videos?id=" + id + "&key=" + google_api_key +"&part=snippet,statistics"
+            api_url = "https://www.googleapis.com/youtube/v3/videos?id=" + id + "&key=" + google_api_key +"&part=snippet,statistics,contentDetails"
             response = requests.get(api_url)
-            json_obj = json.loads(response.text)
+            json_obj = json.loads(response.text)       
+            
+            #youtube channel api 호출
+            channel_id = json_obj['items'][0]['snippet']['channelId']
+            channel_api_url = "https://www.googleapis.com/youtube/v3/channels?key="+ google_api_key +"&id="+ channel_id +"&part=snippet"
+            channel_response = requests.get(channel_api_url)
+            channel_obj = json.loads(channel_response.text)
 
             result = {
                 "type" : "video", 
@@ -165,6 +172,14 @@ def crawling(url):
 
             try: result["watched_cnt"] = json_obj['items'][0]['statistics']['viewCount']
             except (TypeError, KeyError): result["watched_cnt"] = None
+            
+            try: result["channel_image_url"] = channel_obj['items'][0]['snippet']['thumbnails']['high']['url']
+            except (TypeError, KeyError): result["channel_image_url"] = None
+
+            try:
+                duration_str = json_obj['items'][0]['contentDetails']['duration']
+                result['play_time'] = int(parse_duration(duration_str).total_seconds())
+            except (TypeError, KeyError): result["play_time"] = None
 
             return result
 
