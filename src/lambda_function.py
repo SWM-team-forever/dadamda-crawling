@@ -20,7 +20,7 @@ def lambda_handler(event, context):
     }
 
 def isYoutubeVideo(url):
-    url_rex = r"https?:\/\/.*youtu.*[=/](\S+)"
+    url_rex = r"(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu.be\/)([\w-]{11})"
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
@@ -126,7 +126,7 @@ def crawling(url):
         if isYoutubeVideo(url):
             
             #id찾기
-            id_regex = r"https?:\/\/.*youtu.*[=/](\S+)"
+            id_regex = r"(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu.be\/)([\w-]{11})"
             id_match = re.search(id_regex, url)
             id = id_match.group(1)
 
