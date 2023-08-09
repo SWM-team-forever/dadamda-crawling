@@ -197,7 +197,10 @@ def crawling(url):
             try: result["play_time"] = soup.select_one('meta[property="naver:video:play_time"]')['content']
             except (TypeError, KeyError): result["play_time"] = None
 
-            try: result["published_date"] = soup.select_one(".date").text.replace('.', '-', 2)[:10]
+            try:
+                published_date = soup.select_one(".date").text.replace('.', '-', 2)[:10]
+                local_datetime = datetime.strptime(published_date, "%Y-%m-%d")
+                result["published_date"] = int(local_datetime.timestamp())
             except (TypeError, KeyError): result["published_date"] = None 
 
             return result
