@@ -11,6 +11,7 @@ google_api_key = os.environ['GOOGLE_API_KEY']
 def lambda_handler(event, context):
     
     url = event['url']
+    url = url.strip()
     
     return {
         'statusCode': 200,
