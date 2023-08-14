@@ -416,6 +416,8 @@ def crawling(url):
                 "price" : soup.select_one('meta[property="og:description"]')['content'].split(':')[1][1:], #12,900원
                 "site_name" : "11st",
             }
+
+            return result
         
         #쿠팡
         elif isCoupangProduct(url):
@@ -453,6 +455,8 @@ def crawling(url):
             try: result["price"] = soup.select_one('meta[property="og:description"]')['content']
             except (TypeError, KeyError): result["price"] = None
 
+            return result
+
         #G마켓
         elif isGmarketProduct(url):
             result = {
@@ -488,6 +492,8 @@ def crawling(url):
 
             try: result["price"] = soup.select_one('meta[property="og:price"]')['content']
             except (TypeError, KeyError): result["price"] = None
+
+            return result
         
         #위메프 (상품 구현, 여행레저 미구현)
         elif isWemakepriceProduct(url):
