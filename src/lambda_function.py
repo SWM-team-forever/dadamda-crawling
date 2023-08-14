@@ -385,7 +385,7 @@ def crawling(url):
 
                 if author_image_url_match:
                     author_image_url = author_image_url_match.group(1)
-                    result["author_image_url"] = author_image_url
+                    result["author_image_url"] = "https://" + author_image_url
             except (TypeError, KeyError):
                 result["author_image_url"] = None
 
