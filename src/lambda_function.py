@@ -82,7 +82,7 @@ def isWemakepriceProduct(url):
     return bool(url_match)
 
 def isNaverProduct(url):
-    url_rex = r"https?:\/\/\w+.naver.com\/\w+\/products\/\d+\?\S+"
+    url_rex = r"https?:\/\/\w+.naver.com\/\w+\/products\/\d+"
     url_match = re.search(url_rex, url, re.IGNORECASE)
     return bool(url_match)
 
@@ -385,14 +385,14 @@ def crawling(url):
 
                 if author_image_url_match:
                     author_image_url = author_image_url_match.group(1)
-                    result["author_image_url"] = author_image_url
+                    result["author_image_url"] = "https://" + author_image_url
             except (TypeError, KeyError):
                 result["author_image_url"] = None
 
             try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
             except (TypeError, KeyError): result["title"] = None
 
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content'][:2]
+            try: result["thumbnail_url"] = "https:" + soup.select_one('meta[property="og:image"]')['content']
             except (TypeError, KeyError): result["thumbnail_url"] = None
 
             try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
@@ -416,6 +416,8 @@ def crawling(url):
                 "price" : soup.select_one('meta[property="og:description"]')['content'].split(':')[1][1:], #12,900원
                 "site_name" : "11st",
             }
+
+            return result
         
         #쿠팡
         elif isCoupangProduct(url):
@@ -447,11 +449,13 @@ def crawling(url):
             try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
             except (TypeError, KeyError): result["title"] = None
 
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content'][2:]
+            try: result["thumbnail_url"] = "https://" + soup.select_one('meta[property="og:image"]')['content'][2:]
             except (TypeError, KeyError): result["thumbnail_url"] = None
 
             try: result["price"] = soup.select_one('meta[property="og:description"]')['content']
             except (TypeError, KeyError): result["price"] = None
+
+            return result
 
         #G마켓
         elif isGmarketProduct(url):
@@ -464,7 +468,7 @@ def crawling(url):
             try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
             except (TypeError, KeyError): result["title"] = None
 
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content'][2:]
+            try: result["thumbnail_url"] = "https://" + soup.select_one('meta[property="og:image"]')['content'][2:]
             except (TypeError, KeyError): result["thumbnail_url"] = None
 
             try: result["price"] = soup.select_one('meta[property="og:description"]')['content']
@@ -488,6 +492,8 @@ def crawling(url):
 
             try: result["price"] = soup.select_one('meta[property="og:price"]')['content']
             except (TypeError, KeyError): result["price"] = None
+
+            return result
         
         #위메프 (상품 구현, 여행레저 미구현)
         elif isWemakepriceProduct(url):
