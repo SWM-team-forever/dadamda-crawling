@@ -432,7 +432,7 @@ def crawling(url):
             result = {
                 "type" : "product",
                 "page_url" : url,
-                "site_name" : "Gmarket",
+                "site_name" : "Auction",
             }
 
             try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
