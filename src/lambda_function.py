@@ -27,7 +27,7 @@ def isYoutubeVideo(url):
     return bool(url_match)
 
 def isNaverTvVideo(url):
-    url_rex = r"https:\/\/tv.naver.com\/v\/\S+"
+    url_rex = r"https:\/\/tv.naver.com\/v\/(\w+)"
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
@@ -218,7 +218,16 @@ def crawling(url):
                 local_datetime = datetime.strptime(published_date, "%Y-%m-%d")
                 result["published_date"] = int(local_datetime.timestamp())
             except (TypeError, KeyError): result["published_date"] = None 
-
+            
+            try:
+                #id찾기
+                id_regex = r"https:\/\/tv.naver.com\/v\/(\w+)"
+                id_match = re.search(id_regex, url)
+                id = id_match.group(1)
+                
+                result['embed_url'] = "https://tv.naver.com/embed/" + id
+            except (TypeError, KeyError): result["embed_url"] = None
+                
             return result
         
         elif isNaverArticle(url): 
