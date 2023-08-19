@@ -239,7 +239,7 @@ def crawling(url):
             soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
         
             result = {
-                "site_name" : "NaverArticle",
+                "site_name" : "NaverBlog",
                 "type" : "article",
                 "page_url" : url,
             }
