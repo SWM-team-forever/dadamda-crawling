@@ -384,7 +384,7 @@ def crawling(url):
                 author_image_url_match = re.search(author_image_url_regex, html)
 
                 if author_image_url_match:
-                    author_image_url = author_image_url_match.group(1)
+                    author_image_url = author_image_url_match.group(1)[:-1]
                     result["author_image_url"] = "https://" + author_image_url
             except (TypeError, KeyError):
                 result["author_image_url"] = None
