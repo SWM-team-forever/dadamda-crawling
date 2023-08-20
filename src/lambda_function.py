@@ -6,7 +6,7 @@ from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 import os
 
-google_api_key = os.environ['GOOGLE_API_KEY']
+google_api_key = os.environ.get('GOOGLE_API_KEY', None)
 
 def lambda_handler(event, context):
     
@@ -42,7 +42,7 @@ def isVelogArticle(url):
     return bool(url_match)
 
 def isTistoryArticle(url):
-    url_rex = r"https:\/\/\S+.tistory.com\/\d+"
+    url_rex = r"https:\/\/\S+.tistory.com\/(\d+|entry\/\S+)$"
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
