@@ -51,6 +51,11 @@ def isBrunchArticle(url):
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
+def isMobileCoupangProduct(url):
+    url_rex = r"https?:\/\/m.coupang.com\/vm\/products\/\S+"
+    url_match = re.search(url_rex, url)
+    return bool(url_match)
+
 def isCoupangProduct(url):
     url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
     url_match = re.search(url_rex, url)
