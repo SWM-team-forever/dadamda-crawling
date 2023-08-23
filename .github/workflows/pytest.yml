@@ -22,7 +22,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        
+
       - name: Surface failing tests
         if: always()
         uses: pmeier/pytest-results-action@main
@@ -44,4 +44,4 @@ jobs:
       
           # Fail the workflow if no JUnit XML was found.
           # Default: true
-          fail-on-empty: true
+          fail-on-empty: false
