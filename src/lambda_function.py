@@ -51,13 +51,13 @@ def isBrunchArticle(url):
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
-def isMobileCoupangProduct(url):
-    url_rex = r"https?:\/\/m.coupang.com\/vm\/products\/\S+"
+def isCoupangProduct(url):
+    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
-def isCoupangProduct(url):
-    url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
+def isMobileCoupangProduct(url):
+    url_rex = r"https?:\/\/m.coupang.com\/vm\/products\/(\d+)\S+"
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
@@ -443,7 +443,33 @@ def crawling(url):
             except (TypeError, KeyError): result["price"] = None
 
             return result
-        
+             
+        #모바일 쿠팡
+        elif isMobileCoupangProduct(url):
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "site_name" : "Coupang",
+            }
+            #productId parsing
+            productId_regex = r"https?:\/\/m.coupang.com\/vm\/products\/(\d+)\S+"
+            productId_match = re.search(productId_regex, url)
+            productId = productId_match.group(1)
+            
+
+            url = 'https://m.coupang.com/vm/v4/enhanced-pdp/products/' + productId
+            response = requests.get(url, headers=header)
+
+            json_obj = json.loads(response.text)
+            vendorItemDetail = json_obj.get('rData').get('vendorItemDetail')
+            item = vendorItemDetail.get('item')
+
+            result['title'] = item.get('productName')
+            result['price'] = str(item.get('couponPrice'))
+            result['thumbnail_url'] = vendorItemDetail.get('resource').get('originalSquare').get('thumbnailUrl')
+            
+            return result
+
         #옥션
         elif isAuctionProduct(url):
             result = {
