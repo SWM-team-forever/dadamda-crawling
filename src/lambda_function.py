@@ -431,7 +431,7 @@ def crawling(url):
             try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
             except (TypeError, KeyError): result["title"] = None
 
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            try: result["thumbnail_url"] = "https:" + soup.select_one('meta[property="og:image"]')['content']
             except (TypeError, KeyError): result["thumbnail_url"] = None
 
             try: result["price"] = soup.select_one("span.total-price > strong").text
