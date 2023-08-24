@@ -343,11 +343,11 @@ def crawling(url):
             
             try:
                 author_image_url = ""
-                author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
+                author_image_url_regex = r"https?:\/\/tistory1.daumcdn.net\/tistory\/\d+\/attach\/[0-9a-z]{32}"
                 author_image_url_match = re.search(author_image_url_regex, html)
 
                 if author_image_url_match:
-                    author_image_url = author_image_url_match.group(1)
+                    author_image_url = author_image_url_match.group(0)
                     result["author_image_url"] = author_image_url
             except (TypeError, KeyError):
                 result["author_image_url"] = None
