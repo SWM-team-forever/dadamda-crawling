@@ -6,8 +6,6 @@ from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 import os
 
-google_api_key = os.environ.get('GOOGLE_API_KEY', None)
-
 def lambda_handler(event, context):
     
     url = event['url']
@@ -131,6 +129,9 @@ def crawling(url):
             soup = BeautifulSoup(response.content.decode('ks_c_5601-1987', 'replace'), 'html.parser')
        
         if isYoutubeVideo(url):
+            
+            #google_api_key 가져오기
+            google_api_key = os.environ.get('GOOGLE_API_KEY', None)
             
             #id찾기
             id_regex = r"(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu.be\/)([\w-]{11})"
