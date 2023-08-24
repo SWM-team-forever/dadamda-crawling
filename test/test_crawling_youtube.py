@@ -20,4 +20,3 @@ def test_youtube():
     assert result.get('thumbnail_url') == 'https://i.ytimg.com/vi/R8u-_TS0cQk/hqdefault.jpg'
     # description 생략
     assert result.get('channel_name') == '판교 뚜벅쵸'
-    
