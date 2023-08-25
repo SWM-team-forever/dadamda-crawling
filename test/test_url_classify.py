@@ -4,6 +4,7 @@ sys.path.append(os.path.abspath('./src'))
 
 from lambda_function import isTistoryArticle
 from lambda_function import isMobileCoupangProduct
+from lambda_function import is11stProduct
 
 def test_isTistoryArticle():
     tistory_success_url_list = """
@@ -40,3 +41,32 @@ https://m.coupang.com/vm/products/6384047625?itemId=13576417392&searchId=e70dc42
         if(url == ""): continue
         assert isMobileCoupangProduct(url) == True
 
+
+def test_is11stProduct():
+    url = """
+https://www.11st.co.kr/products/1646977893?trTypeCd=03&trCtgrNo=2139299
+https://www.11st.co.kr/products/2669840579
+https://www.11st.co.kr/products/4799396960
+https://www.11st.co.kr/products/pa/4239839553?trTypeCd=Xk&trCtgrNo=70229
+https://www.11st.co.kr/products/pa/4239873003
+https://www.11st.co.kr/products/6036564886?trTypeCd=22&trCtgrNo=895019
+https://www.11st.co.kr/products/6001762518
+https://www.11st.co.kr/products/pa/3825382142
+http://www.11st.co.kr/products/6098373325?&trTypeCd=PW24&trCtgrNo=585021
+"""
+    for url in url.splitlines():
+        if(url == ""): continue
+        assert is11stProduct(url) == True
+
+
+
+
+def test_isNot11stProduct():
+    url = """
+https://phone.11st.co.kr/tLounge/product.tmall?productNo=5663379810&subscriptionId=NA00007790&subcommDcMthd=20&selSubcommTerm=24
+https://www.11st.co.kr/browsing/BestSeller.tmall?method=getBestSellerMain&xfrom=main^gnb
+https://www.11st.co.kr/browsing/BestSeller.tmall?method=getBestSellerMain&cornerNo=9&dispCtgrNo=1001352
+"""
+    for url in url.splitlines():
+        if(url == ""): continue
+        assert is11stProduct(url) == False
