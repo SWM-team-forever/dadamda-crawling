@@ -1,6 +1,7 @@
 import os
 import sys
 sys.path.append(os.path.abspath('./src'))
+sys.path.append(os.path.abspath('./'))
 
 from lambda_function import crawling
 from env import setEnviron
