@@ -62,7 +62,7 @@ def isMobileCoupangProduct(url):
     return bool(url_match)
 
 def is11stProduct(url):
-    url_rex = r"https:\/\/www.11st.co.kr\/products\/\S+"
+    url_rex = r"https?:\/\/www.11st.co.kr\/products\/\S+"
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
