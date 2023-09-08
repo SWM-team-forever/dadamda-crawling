@@ -32,3 +32,6 @@ def test_crawlingKakaoLocation():
     assert result['wpointx'] == 506565
     assert result['wpointy'] == 1110288
     assert result['phonenum'] == '1833-5550'
+    assert result['bunzino'] == '06241'
+    assert result['homepage'] == 'http://www.fastfive.co.kr'
+    assert result['category'] == '공유오피스'

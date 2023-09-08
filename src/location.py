@@ -46,5 +46,8 @@ def crawlingKakaoLocation(url):
     result['wpointx'] = location_obj['basicInfo']['wpointx']
     result['wpointy'] = location_obj['basicInfo']['wpointy']
     result['phonenum'] = location_obj['basicInfo']['phonenum']
+    result['bunzino'] = location_obj['basicInfo']['address']['newaddr']['bsizonno']
+    result['homepage'] = location_obj['basicInfo']['homepage']
+    result['category'] = location_obj['basicInfo']['category']['catename']
 
     return result
