@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.abspath('./src'))
 sys.path.append(os.path.abspath('./'))
 
-from location import isKakaoLocation
+from location import isKakaoLocation, crawlingKakaoLocation
 
 def test_isKakaoLocation():
     kakao_location_success_url = """
@@ -22,4 +22,13 @@ https://www.youtube.com/watch?v=9bZkp7q19f0
     for url in kakao_location_fail_url.splitlines():
         if(url == ""): continue
         assert isKakaoLocation(url) == False
-        
+
+
+def test_crawlingKakaoLocation():
+    url = 'https://kko.to/VFQE2QR2X_'
+    result = crawlingKakaoLocation(url)
+    
+    assert result['title'] == '서울 강남구 테헤란로2길 27 패스트파이브빌딩 8~15층'
+    assert result['wpointx'] == 506565
+    assert result['wpointy'] == 1110288
+    assert result['phonenum'] == '1833-5550'
