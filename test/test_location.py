@@ -35,3 +35,16 @@ def test_crawlingKakaoLocation():
     assert result['bunzino'] == '06241'
     assert result['homepage'] == 'http://www.fastfive.co.kr'
     assert result['category'] == '공유오피스'
+    
+
+def test_crawlingKaokaoLocation2():
+    url = 'https://kko.to/CNBrqpD7xW'
+    result = crawlingKakaoLocation(url)
+    
+    assert result['title'] == '서울 강남구 테헤란로2길 27 패스트파이브빌딩 8~15층'
+    assert result['wpointx'] == 506565
+    assert result['wpointy'] == 1110288
+    assert result['phonenum'] == '1833-5550'
+    assert result['bunzino'] == '06241'
+    assert result['homepage'] == 'http://www.fastfive.co.kr'
+    assert result['category'] == '공유오피스'
