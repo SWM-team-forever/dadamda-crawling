@@ -12,14 +12,6 @@ def isKakaoLocation(url):
         return True
     return False
 
-def isNaverLocation(url):
-    pattern1 = r'https?:\/\/map.naver.com\/p\/entry\/place\/(\d+)'
-    pattern2 = r'https?:\/\/naver.me\/\w+'
-    
-    if re.search(pattern1, url) or re.search(pattern2, url):
-        return True
-    return False
-
 def crawlingKakaoLocation(url):
 
     result = {}
@@ -56,5 +48,47 @@ def crawlingKakaoLocation(url):
     result['bunzino'] = location_obj['basicInfo']['address']['newaddr']['bsizonno']
     result['homepage'] = location_obj['basicInfo']['homepage']
     result['category'] = location_obj['basicInfo']['category']['catename']
+
+    return result
+
+def isNaverLocation(url):
+    pattern1 = r'https?:\/\/map.naver.com\/p\/entry\/place\/(\d+)'
+    pattern2 = r'https?:\/\/naver.me\/\w+'
+    
+    if re.search(pattern1, url) or re.search(pattern2, url):
+        return True
+    return False
+
+def crawlingNaverLocation(url):
+
+    result = {}
+
+    header = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36",
+        "Accept-Language": "ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3"
+    }
+
+    # 변경 url 받아서 처리
+    response = requests.get(url, allow_redirects=False, headers=header)
+    if(300 <= response.status_code < 400):
+        url = response.headers['Location']
+
+    place_id = None
+
+    #장소id 찾기
+    match = re.search(r'https?:\/\/map.naver.com\/p\/entry\/place\/(\d+)', url)
+    if match:
+        place_id = match.group(1)
+
+    response = requests.get("https://map.naver.com/p/api/place/summary/" + place_id, headers=header)
+
+    location_obj = json.loads(response.text)
+
+    result['title'] = location_obj['name']
+    result['address'] = location_obj['roadAddress']
+    result['lng'] = location_obj['x']
+    result['lat'] = location_obj['y']
+    result['phonenum'] = location_obj['buttons']['phone']
+    result['category'] = location_obj['category']
 
     return result

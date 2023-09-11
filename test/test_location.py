@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.abspath('./src'))
 sys.path.append(os.path.abspath('./'))
 
-from location import isKakaoLocation, crawlingKakaoLocation, isNaverLocation
+from location import isKakaoLocation, crawlingKakaoLocation, isNaverLocation, crawlingNaverLocation
 
 def test_isKakaoLocation():
     kakao_location_success_url = """
@@ -58,3 +58,14 @@ https://naver.me/FGyEZaTm
     for url in naver_location_success_url.splitlines():
         if(url == ""): continue
         assert isNaverLocation(url) == True
+
+def test_crawlingNaverLocation():
+    url = 'https://map.naver.com/p/entry/place/13460177?c=15.00,0,0,0,dh'
+    result = crawlingNaverLocation(url)
+
+    assert result['title'] == '메가박스 동탄'
+    assert result['address'] == '경기 화성시 동탄지성로 11 동탄SR GOLD PLAZA'
+    assert result['lng'] == '127.0728064'
+    assert result['lat'] == '37.2045287'
+    assert result['phonenum'] == '1544-0070'
+    assert result['category'] == '영화관'
