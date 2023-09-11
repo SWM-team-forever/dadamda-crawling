@@ -41,7 +41,8 @@ def crawlingKakaoLocation(url):
 
     location_obj = json.loads(response.text)
 
-    result['title'] = location_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + location_obj['basicInfo']['address']['newaddr']['newaddrfull'] + " " + location_obj['basicInfo']['address']['addrdetail']
+    result['title'] = location_obj['basicInfo']['placenamefull']
+    result['address'] = location_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + location_obj['basicInfo']['address']['newaddr']['newaddrfull'] + " " + location_obj['basicInfo']['address']['addrdetail']
     result['wpointx'] = location_obj['basicInfo']['wpointx']
     result['wpointy'] = location_obj['basicInfo']['wpointy']
     result['phonenum'] = location_obj['basicInfo']['phonenum']
