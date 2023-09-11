@@ -12,8 +12,15 @@ def isKakaoLocation(url):
         return True
     return False
 
-def crawlingKakaoLocation(url):
+def isNaverLocation(url):
+    pattern1 = r'https?:\/\/map.naver.com\/p\/entry\/place\/(\d+)'
+    pattern2 = r'https?:\/\/naver.me\/\w+'
+    
+    if re.search(pattern1, url) or re.search(pattern2, url):
+        return True
+    return False
 
+def crawlingKakaoLocation(url):
 
     result = {}
 

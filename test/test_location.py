@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.abspath('./src'))
 sys.path.append(os.path.abspath('./'))
 
-from location import isKakaoLocation, crawlingKakaoLocation
+from location import isKakaoLocation, crawlingKakaoLocation, isNaverLocation
 
 def test_isKakaoLocation():
     kakao_location_success_url = """
@@ -48,3 +48,13 @@ def test_crawlingKaokaoLocation2():
     assert result['bunzino'] == '06241'
     assert result['homepage'] == 'http://www.fastfive.co.kr'
     assert result['category'] == '공유오피스'
+
+
+def test_isNaverLocation():
+    naver_location_success_url = """
+https://map.naver.com/p/entry/place/1881136010?c=15.00,0,0,0,dh
+https://naver.me/FGyEZaTm
+"""
+    for url in naver_location_success_url.splitlines():
+        if(url == ""): continue
+        assert isNaverLocation(url) == True
