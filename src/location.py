@@ -2,6 +2,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 import json
+import os
 
 def isKakaoLocation(url):
     pattern1 = r'^https?://kko\.to/'
@@ -45,7 +46,7 @@ def crawlingKakaoLocation(url):
     wpointy = location_obj['basicInfo']['wpointy']
 
     transfer_point_api_headers = {
-        'Authorization': 'KakaoAK 10d3c3a366af767301a9c9c0179ffd6c'
+        'Authorization': 'KakaoAK ' + os.environ['KAKAO_API_KEY']
     }
 
     transfer_point_api_result = requests.get("https://dapi.kakao.com/v2/local/geo/transcoord.json?" + "x=" + str(wpointx) + "&y=" + str(wpointy) + "&input_coord=WCONGNAMUL&output_coord=WGS84", headers=transfer_point_api_headers)

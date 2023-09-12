@@ -4,10 +4,10 @@ sys.path.append(os.path.abspath('./src'))
 sys.path.append(os.path.abspath('./'))
 
 from lambda_function import crawling
-from env import setEnviron
+from env import setGoogleKey
 
 def test_youtube():
-    setEnviron()
+    setGoogleKey()
     url = 'https://www.youtube.com/watch?v=R8u-_TS0cQk'
     result = crawling(url)
 

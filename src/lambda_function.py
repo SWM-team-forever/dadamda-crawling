@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 import os
 from location import isKakaoLocation, crawlingKakaoLocation
+from location import isNaverLocation, crawlingNaverLocation
 
 def lambda_handler(event, context):
     
@@ -113,6 +114,9 @@ def crawling(url):
 
     if isKakaoLocation(url):
         return crawlingKakaoLocation(url)
+    
+    if isNaverLocation(url):
+        return crawlingNaverLocation(url)
 
 
     result = {}

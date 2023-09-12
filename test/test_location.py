@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.append(os.path.abspath('./src'))
 sys.path.append(os.path.abspath('./'))
+from env import setKakaoKey
 
 from location import isKakaoLocation, crawlingKakaoLocation, isNaverLocation, crawlingNaverLocation
 
@@ -25,6 +26,7 @@ https://www.youtube.com/watch?v=9bZkp7q19f0
 
 
 def test_crawlingKakaoLocation():
+    setKakaoKey()
     url = 'https://kko.to/VFQE2QR2X_'
     result = crawlingKakaoLocation(url)
     
