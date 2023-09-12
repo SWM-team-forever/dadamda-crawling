@@ -32,6 +32,4 @@ jobs:
           aws_region: ap-northeast-2
           function_name: dadamda-crawling-prod
           zip_file: function.zip
-          environment:
-            GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
-            KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY}}
+          environment: GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }},KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY}}
