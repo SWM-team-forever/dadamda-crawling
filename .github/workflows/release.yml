@@ -33,3 +33,4 @@ jobs:
           function_name: dadamda-crawling-prod
           zip_file: function.zip
           environment: GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
+          environment: KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY}}
