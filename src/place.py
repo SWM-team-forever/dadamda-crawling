@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import json
 import os
 
-def isKakaoLocation(url):
+def isKakaoPlace(url):
     pattern1 = r'^https?://kko\.to/'
     pattern2 = r'^https?://place\.map\.kakao\.com/'
     pattern3 = r'^https?://map\.kakao\.com/'
@@ -13,7 +13,7 @@ def isKakaoLocation(url):
         return True
     return False
 
-def crawlingKakaoLocation(url):
+def crawlingKakaoPlace(url):
 
     header = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36",
@@ -28,7 +28,7 @@ def crawlingKakaoLocation(url):
     place_id = None
 
     result = {
-        "type" : "location",
+        "type" : "place",
         "page_url" : url,
         "site_name" : "KakaoMap",
     }
@@ -44,10 +44,10 @@ def crawlingKakaoLocation(url):
 
     response = requests.get("https://place.map.kakao.com/main/v/" + place_id, headers=header)
 
-    location_obj = json.loads(response.text)
+    place_obj = json.loads(response.text)
 
-    wpointx = location_obj['basicInfo']['wpointx']
-    wpointy = location_obj['basicInfo']['wpointy']
+    wpointx = place_obj['basicInfo']['wpointx']
+    wpointy = place_obj['basicInfo']['wpointy']
 
     transfer_point_api_headers = {
         'Authorization': 'KakaoAK ' + os.environ['KAKAO_API_KEY']
@@ -58,16 +58,16 @@ def crawlingKakaoLocation(url):
 
     result['lat'] = point_obj['documents'][0]['y']
     result['lng'] = point_obj['documents'][0]['x']
-    result['title'] = location_obj['basicInfo']['placenamefull']
-    result['address'] = location_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + location_obj['basicInfo']['address']['newaddr']['newaddrfull'] + " " + location_obj['basicInfo']['address']['addrdetail']
-    result['phonenum'] = location_obj['basicInfo']['phonenum']
-    result['zipcode'] = location_obj['basicInfo']['address']['newaddr']['bsizonno']
-    result['homepage'] = location_obj['basicInfo']['homepage']
-    result['category'] = location_obj['basicInfo']['category']['catename']
+    result['title'] = place_obj['basicInfo']['placenamefull']
+    result['address'] = place_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + place_obj['basicInfo']['address']['newaddr']['newaddrfull'] + " " + place_obj['basicInfo']['address']['addrdetail']
+    result['phonenum'] = place_obj['basicInfo']['phonenum']
+    result['zipcode'] = place_obj['basicInfo']['address']['newaddr']['bsizonno']
+    result['homepage'] = place_obj['basicInfo']['homepage']
+    result['category'] = place_obj['basicInfo']['category']['catename']
 
     return result
 
-def isNaverLocation(url):
+def isNaverPlace(url):
     pattern1 = r'https?:\/\/map.naver.com\/p\/entry\/place\/(\d+)'
     pattern2 = r'https?:\/\/naver.me\/\w+'
     
@@ -75,7 +75,7 @@ def isNaverLocation(url):
         return True
     return False
 
-def crawlingNaverLocation(url):
+def crawlingNaverPlace(url):
 
     header = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36",
@@ -88,7 +88,7 @@ def crawlingNaverLocation(url):
         url = response.headers['Location']
 
     result = {
-        "type" : "location",
+        "type" : "place",
         "page_url" : url,
         "site_name" : "NaverMap",
     }    
@@ -102,13 +102,13 @@ def crawlingNaverLocation(url):
 
     response = requests.get("https://map.naver.com/p/api/place/summary/" + place_id, headers=header)
 
-    location_obj = json.loads(response.text)
+    place_obj = json.loads(response.text)
 
-    result['title'] = location_obj['name']
-    result['address'] = location_obj['roadAddress']
-    result['lat'] = location_obj['y']
-    result['lng'] = location_obj['x']
-    result['phonenum'] = location_obj['buttons']['phone']
-    result['category'] = location_obj['category']
+    result['title'] = place_obj['name']
+    result['address'] = place_obj['roadAddress']
+    result['lat'] = place_obj['y']
+    result['lng'] = place_obj['x']
+    result['phonenum'] = place_obj['buttons']['phone']
+    result['category'] = place_obj['category']
 
     return result

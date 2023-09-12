@@ -4,31 +4,32 @@ sys.path.append(os.path.abspath('./src'))
 sys.path.append(os.path.abspath('./'))
 from env import setKakaoKey
 
-from location import isKakaoLocation, crawlingKakaoLocation, isNaverLocation, crawlingNaverLocation
+from place import isKakaoPlace, crawlingKakaoPlace
+from place import isNaverPlace, crawlingNaverPlace
 
-def test_isKakaoLocation():
-    kakao_location_success_url = """
+def test_isKakaoPlace():
+    kakao_place_success_url = """
 https://kko.to/VFQE2QR2X_
 https://place.map.kakao.com/873811260
 https://map.kakao.com/?map_type=TYPE_MAP&itemId=873811260&urlLevel=3&urlX=506462&urlY=1110287
 """
-    for url in kakao_location_success_url.splitlines():
+    for url in kakao_place_success_url.splitlines():
         if(url == ""): continue
-        assert isKakaoLocation(url) == True
+        assert isKakaoPlace(url) == True
 
-def test_isNotKakaoLocation():
-    kakao_location_fail_url = """
+def test_isNotKakaoPlace():
+    kakao_place_fail_url = """
 https://www.youtube.com/watch?v=9bZkp7q19f0
 """
-    for url in kakao_location_fail_url.splitlines():
+    for url in kakao_place_fail_url.splitlines():
         if(url == ""): continue
-        assert isKakaoLocation(url) == False
+        assert isKakaoPlace(url) == False
 
 
-def test_crawlingKakaoLocation():
+def test_crawlingKakaoPlace():
     setKakaoKey()
     url = 'https://kko.to/VFQE2QR2X_'
-    result = crawlingKakaoLocation(url)
+    result = crawlingKakaoPlace(url)
     
     assert result['title'] == '패스트파이브 강남5호점'
     assert result['address'] == '서울 강남구 테헤란로2길 27 패스트파이브빌딩 8~15층'
@@ -38,22 +39,22 @@ def test_crawlingKakaoLocation():
     assert result['zipcode'] == '06241'
     assert result['homepage'] == 'http://www.fastfive.co.kr'
     assert result['category'] == '공유오피스'
-    assert result['type'] == 'location'
+    assert result['type'] == 'place'
     assert result['page_url'] == 'https://map.kakao.com/?map_type=TYPE_MAP&itemId=873811260&urlLevel=3&urlX=506550&urlY=1110287'
     assert result['site_name'] == 'KakaoMap'
 
-def test_isNaverLocation():
-    naver_location_success_url = """
+def test_isNaverPlace():
+    naver_place_success_url = """
 https://map.naver.com/p/entry/place/1881136010?c=15.00,0,0,0,dh
 https://naver.me/FGyEZaTm
 """
-    for url in naver_location_success_url.splitlines():
+    for url in naver_place_success_url.splitlines():
         if(url == ""): continue
-        assert isNaverLocation(url) == True
+        assert isNaverPlace(url) == True
 
-def test_crawlingNaverLocation():
+def test_crawlingNaverPlace():
     url = 'https://map.naver.com/p/entry/place/13460177?c=15.00,0,0,0,dh'
-    result = crawlingNaverLocation(url)
+    result = crawlingNaverPlace(url)
 
     assert result['title'] == '메가박스 동탄'
     assert result['address'] == '경기 화성시 동탄지성로 11 동탄SR GOLD PLAZA'
@@ -61,6 +62,6 @@ def test_crawlingNaverLocation():
     assert result['lng'] == '127.0728064'
     assert result['phonenum'] == '1544-0070'
     assert result['category'] == '영화관'
-    assert result['type'] == 'location'
+    assert result['type'] == 'place'
     assert result['page_url'] == 'https://map.naver.com/p/entry/place/13460177?c=15.00,0,0,0,dh'
     assert result['site_name'] == 'NaverMap'
