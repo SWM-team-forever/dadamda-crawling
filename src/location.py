@@ -15,8 +15,6 @@ def isKakaoLocation(url):
 
 def crawlingKakaoLocation(url):
 
-    result = {}
-
     header = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36",
         "Accept-Language": "ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3"
@@ -28,6 +26,12 @@ def crawlingKakaoLocation(url):
         url = response.headers['Location']
 
     place_id = None
+
+    result = {
+        "type" : "location",
+        "page_url" : url,
+        "site_name" : "KakaoMap",
+    }
 
     #장소id 찾기
     match = re.search(r'https?:\/\/place.map.kakao.com\/(\d+)', url)

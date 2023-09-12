@@ -38,6 +38,9 @@ def test_crawlingKakaoLocation():
     assert result['zipcode'] == '06241'
     assert result['homepage'] == 'http://www.fastfive.co.kr'
     assert result['category'] == '공유오피스'
+    assert result['type'] == 'location'
+    assert result['page_url'] == 'https://map.kakao.com/?map_type=TYPE_MAP&itemId=873811260&urlLevel=3&urlX=506550&urlY=1110287'
+    assert result['site_name'] == 'KakaoMap'
 
 def test_isNaverLocation():
     naver_location_success_url = """
