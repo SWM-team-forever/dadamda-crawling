@@ -41,10 +41,20 @@ def crawlingKakaoLocation(url):
 
     location_obj = json.loads(response.text)
 
+    wpointx = location_obj['basicInfo']['wpointx']
+    wpointy = location_obj['basicInfo']['wpointy']
+
+    transfer_point_api_headers = {
+        'Authorization': 'KakaoAK 10d3c3a366af767301a9c9c0179ffd6c'
+    }
+
+    transfer_point_api_result = requests.get("https://dapi.kakao.com/v2/local/geo/transcoord.json?" + "x=" + str(wpointx) + "&y=" + str(wpointy) + "&input_coord=WCONGNAMUL&output_coord=WGS84", headers=transfer_point_api_headers)
+    point_obj = json.loads(transfer_point_api_result.text)
+
+    result['lat'] = point_obj['documents'][0]['y']
+    result['lng'] = point_obj['documents'][0]['x']
     result['title'] = location_obj['basicInfo']['placenamefull']
     result['address'] = location_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + location_obj['basicInfo']['address']['newaddr']['newaddrfull'] + " " + location_obj['basicInfo']['address']['addrdetail']
-    result['wpointx'] = location_obj['basicInfo']['wpointx']
-    result['wpointy'] = location_obj['basicInfo']['wpointy']
     result['phonenum'] = location_obj['basicInfo']['phonenum']
     result['bunzino'] = location_obj['basicInfo']['address']['newaddr']['bsizonno']
     result['homepage'] = location_obj['basicInfo']['homepage']
@@ -87,8 +97,8 @@ def crawlingNaverLocation(url):
 
     result['title'] = location_obj['name']
     result['address'] = location_obj['roadAddress']
-    result['lng'] = location_obj['x']
     result['lat'] = location_obj['y']
+    result['lng'] = location_obj['x']
     result['phonenum'] = location_obj['buttons']['phone']
     result['category'] = location_obj['category']
 

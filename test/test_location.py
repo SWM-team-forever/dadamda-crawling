@@ -30,8 +30,8 @@ def test_crawlingKakaoLocation():
     
     assert result['title'] == '패스트파이브 강남5호점'
     assert result['address'] == '서울 강남구 테헤란로2길 27 패스트파이브빌딩 8~15층'
-    assert result['wpointx'] == 506565
-    assert result['wpointy'] == 1110288
+    assert result['lat'] == 37.49649204220777
+    assert result['lng'] == 127.02969594506668
     assert result['phonenum'] == '1833-5550'
     assert result['bunzino'] == '06241'
     assert result['homepage'] == 'http://www.fastfive.co.kr'
@@ -52,7 +52,7 @@ def test_crawlingNaverLocation():
 
     assert result['title'] == '메가박스 동탄'
     assert result['address'] == '경기 화성시 동탄지성로 11 동탄SR GOLD PLAZA'
-    assert result['lng'] == '127.0728064'
     assert result['lat'] == '37.2045287'
+    assert result['lng'] == '127.0728064'
     assert result['phonenum'] == '1544-0070'
     assert result['category'] == '영화관'
