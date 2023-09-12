@@ -61,3 +61,6 @@ def test_crawlingNaverLocation():
     assert result['lng'] == '127.0728064'
     assert result['phonenum'] == '1544-0070'
     assert result['category'] == '영화관'
+    assert result['type'] == 'location'
+    assert result['page_url'] == 'https://map.naver.com/p/entry/place/13460177?c=15.00,0,0,0,dh'
+    assert result['site_name'] == 'NaverMap'

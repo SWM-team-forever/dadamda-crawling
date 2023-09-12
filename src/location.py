@@ -77,8 +77,6 @@ def isNaverLocation(url):
 
 def crawlingNaverLocation(url):
 
-    result = {}
-
     header = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36",
         "Accept-Language": "ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3"
@@ -89,6 +87,12 @@ def crawlingNaverLocation(url):
     if(300 <= response.status_code < 400):
         url = response.headers['Location']
 
+    result = {
+        "type" : "location",
+        "page_url" : url,
+        "site_name" : "NaverMap",
+    }    
+    
     place_id = None
 
     #장소id 찾기
