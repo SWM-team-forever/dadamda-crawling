@@ -5,6 +5,8 @@ from isodate import parse_duration
 from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 import os
+from place import isKakaoPlace, crawlingKakaoPlace
+from place import isNaverPlace, crawlingNaverPlace
 
 def lambda_handler(event, context):
     
@@ -109,6 +111,13 @@ def getNaverArticlePublishedDate(input_date):
     return int(new_time.timestamp())
 
 def crawling(url):
+
+    if isKakaoPlace(url):
+        return crawlingKakaoPlace(url)
+    
+    if isNaverPlace(url):
+        return crawlingNaverPlace(url)
+
 
     result = {}
 

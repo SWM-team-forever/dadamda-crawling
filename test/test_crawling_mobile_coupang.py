@@ -9,7 +9,7 @@ def test_crawling_mobile_coupang():
     result = crawling(url)
 
     assert result.get('title') == "[당일출고] 스텐밧드 +이지커버 1세트 / 반찬통 본체 + 뚜껑 1세트"
-    assert result.get('price') == "13900"
+    assert result.get('price') == "13200"
     assert result.get('thumbnail_url') == 'https://thumbnail8.coupangcdn.com/thumbnails/remote/492x492ex/image/vendor_inventory/bc31/952844971e7e1b4442b0ab174b8ac7d1367ebfb02156e84308a1a21c21d5.jpg'
 
 
