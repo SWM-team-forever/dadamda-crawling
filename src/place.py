@@ -59,7 +59,11 @@ def crawlingKakaoPlace(url):
     result['lat'] = point_obj['documents'][0]['y']
     result['lng'] = point_obj['documents'][0]['x']
     result['title'] = place_obj['basicInfo']['placenamefull']
-    result['address'] = place_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + place_obj['basicInfo']['address']['newaddr']['newaddrfull'] + " " + place_obj['basicInfo']['address']['addrdetail']
+    
+    result['address'] = place_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + place_obj['basicInfo']['address']['newaddr']['newaddrfull']
+    if 'addrdetail' in place_obj['basicInfo']['address']:
+        result['address'] += " " + place_obj['basicInfo']['address']['addrdetail']
+
     result['phonenum'] = place_obj['basicInfo']['phonenum']
     result['zipcode'] = place_obj['basicInfo']['address']['newaddr']['bsizonno']
     result['homepage'] = place_obj['basicInfo']['homepage']

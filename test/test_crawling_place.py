@@ -11,6 +11,7 @@ def test_isKakaoPlace():
     kakao_place_success_url = """
 https://kko.to/VFQE2QR2X_
 https://place.map.kakao.com/873811260
+https://place.map.kakao.com/9113903
 https://map.kakao.com/?map_type=TYPE_MAP&itemId=873811260&urlLevel=3&urlX=506462&urlY=1110287
 """
     for url in kakao_place_success_url.splitlines():
@@ -23,6 +24,7 @@ https://www.youtube.com/watch?v=9bZkp7q19f0
 """
     for url in kakao_place_fail_url.splitlines():
         if(url == ""): continue
+
         assert isKakaoPlace(url) == False
 
 
@@ -41,6 +43,23 @@ def test_crawlingKakaoPlace():
     assert result['category'] == '공유오피스'
     assert result['type'] == 'place'
     assert result['page_url'] == 'https://map.kakao.com/?map_type=TYPE_MAP&itemId=873811260&urlLevel=3&urlX=506550&urlY=1110287'
+    assert result['site_name'] == 'KakaoMap'
+
+def test_crawlingKakaoPlace2():
+    setKakaoKey()
+    url = 'https://place.map.kakao.com/9113903'
+    result = crawlingKakaoPlace(url)
+
+    assert result['title'] == '서울역'
+    assert result['address'] == '서울 용산구 한강대로 405'
+    assert result['lat'] == 37.55467883886744
+    assert result['lng'] == 126.97060691739387
+    assert result['phonenum'] == '1544-7788'
+    assert result['zipcode'] == '04320'
+    assert result['homepage'] == 'https://info.korail.com'
+    assert result['category'] == 'KTX정차역'
+    assert result['type'] == 'place'
+    assert result['page_url'] == 'https://place.map.kakao.com/9113903'
     assert result['site_name'] == 'KakaoMap'
 
 def test_isNaverPlace():
