@@ -46,28 +46,40 @@ def crawlingKakaoPlace(url):
 
     place_obj = json.loads(response.text)
 
-    wpointx = place_obj['basicInfo']['wpointx']
-    wpointy = place_obj['basicInfo']['wpointy']
+    try : 
+        wpointx = place_obj['basicInfo']['wpointx']
+        wpointy = place_obj['basicInfo']['wpointy']
 
-    transfer_point_api_headers = {
-        'Authorization': 'KakaoAK ' + os.environ['KAKAO_API_KEY']
-    }
+        transfer_point_api_headers = {
+            'Authorization': 'KakaoAK ' + os.environ['KAKAO_API_KEY']
+        }
 
-    transfer_point_api_result = requests.get("https://dapi.kakao.com/v2/local/geo/transcoord.json?" + "x=" + str(wpointx) + "&y=" + str(wpointy) + "&input_coord=WCONGNAMUL&output_coord=WGS84", headers=transfer_point_api_headers)
-    point_obj = json.loads(transfer_point_api_result.text)
+        transfer_point_api_result = requests.get("https://dapi.kakao.com/v2/local/geo/transcoord.json?" + "x=" + str(wpointx) + "&y=" + str(wpointy) + "&input_coord=WCONGNAMUL&output_coord=WGS84", headers=transfer_point_api_headers)
+        point_obj = json.loads(transfer_point_api_result.text)
+        result['lat'] = point_obj['documents'][0]['y']
+        result['lng'] = point_obj['documents'][0]['x']
+    except(TypeError, KeyError): print("좌표 변환 실패")
 
-    result['lat'] = point_obj['documents'][0]['y']
-    result['lng'] = point_obj['documents'][0]['x']
-    result['title'] = place_obj['basicInfo']['placenamefull']
+    try : result['title'] = place_obj['basicInfo']['placenamefull']
+    except(TypeError, KeyError): result['title'] = None
     
-    result['address'] = place_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + place_obj['basicInfo']['address']['newaddr']['newaddrfull']
-    if 'addrdetail' in place_obj['basicInfo']['address']:
-        result['address'] += " " + place_obj['basicInfo']['address']['addrdetail']
+    try :
+        result['address'] = place_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + place_obj['basicInfo']['address']['newaddr']['newaddrfull']
+        if 'addrdetail' in place_obj['basicInfo']['address']:
+            result['address'] += " " + place_obj['basicInfo']['address']['addrdetail']
+    except(TypeError, KeyError): result['address'] = None
 
-    result['phonenum'] = place_obj['basicInfo']['phonenum']
-    result['zipcode'] = place_obj['basicInfo']['address']['newaddr']['bsizonno']
-    result['homepage'] = place_obj['basicInfo']['homepage']
-    result['category'] = place_obj['basicInfo']['category']['catename']
+    try : result['phonenum'] = place_obj['basicInfo']['phonenum']
+    except(TypeError, KeyError): result['phonenum'] = None
+
+    try : result['zipcode'] = place_obj['basicInfo']['address']['newaddr']['bsizonno']
+    except(TypeError, KeyError): result['zipcode'] = None
+
+    try : result['homepage'] = place_obj['basicInfo']['homepage']
+    except(TypeError, KeyError): result['homepage'] = None
+    
+    try : result['category'] = place_obj['basicInfo']['category']['catename']
+    except(TypeError, KeyError): result['category'] = None
 
     return result
 
@@ -108,11 +120,22 @@ def crawlingNaverPlace(url):
 
     place_obj = json.loads(response.text)
 
-    result['title'] = place_obj['name']
-    result['address'] = place_obj['roadAddress']
-    result['lat'] = place_obj['y']
-    result['lng'] = place_obj['x']
-    result['phonenum'] = place_obj['buttons']['phone']
-    result['category'] = place_obj['category']
+    try : result['title'] = place_obj['name']
+    except(TypeError, KeyError): result['title'] = None
+
+    try: result['address'] = place_obj['roadAddress']
+    except(TypeError, KeyError): result['address'] = None
+
+    try : result['lat'] = place_obj['y']
+    except(TypeError, KeyError): result['lat'] = None
+
+    try : result['lng'] = place_obj['x']
+    except(TypeError, KeyError): result['lng'] = None
+
+    try: result['phonenum'] = place_obj['buttons']['phone']
+    except(TypeError, KeyError): result['phonenum'] = None
+
+    try : result['category'] = place_obj['category']
+    except(TypeError, KeyError): result['category'] = None
 
     return result
