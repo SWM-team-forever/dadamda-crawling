@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import os
+from other import crawlingOther
 
 def isKakaoPlace(url):
     pattern1 = r'^https?://kko\.to/'
@@ -58,7 +59,8 @@ def crawlingKakaoPlace(url):
         point_obj = json.loads(transfer_point_api_result.text)
         result['lat'] = point_obj['documents'][0]['y']
         result['lng'] = point_obj['documents'][0]['x']
-    except(TypeError, KeyError): print("좌표 변환 실패")
+    except(TypeError, KeyError): 
+        return crawlingOther(url)
 
     try : result['title'] = place_obj['basicInfo']['placenamefull']
     except(TypeError, KeyError): result['title'] = None
@@ -120,17 +122,17 @@ def crawlingNaverPlace(url):
 
     place_obj = json.loads(response.text)
 
+    try : 
+        result['lat'] = place_obj['y']
+        result['lng'] = place_obj['x']
+    except(TypeError, KeyError): 
+        return crawlingOther(url)
+
     try : result['title'] = place_obj['name']
     except(TypeError, KeyError): result['title'] = None
 
     try: result['address'] = place_obj['roadAddress']
     except(TypeError, KeyError): result['address'] = None
-
-    try : result['lat'] = place_obj['y']
-    except(TypeError, KeyError): result['lat'] = None
-
-    try : result['lng'] = place_obj['x']
-    except(TypeError, KeyError): result['lng'] = None
 
     try: result['phonenum'] = place_obj['buttons']['phone']
     except(TypeError, KeyError): result['phonenum'] = None
