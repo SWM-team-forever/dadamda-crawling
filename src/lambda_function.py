@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 import os
 from place import isKakaoPlace, crawlingKakaoPlace
 from place import isNaverPlace, crawlingNaverPlace
+from other import crawlingOther
 
 def lambda_handler(event, context):
     
@@ -591,18 +592,4 @@ def crawling(url):
             return result
         
         else :
-            result = {
-                "type": "other",
-                "page_url": url,
-            }
-            
-            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
-            except (TypeError, KeyError): result["title"] = None
-
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
-            except (TypeError, KeyError): result["thumbnail_url"] = None
-                
-            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
-            except (TypeError, KeyError): result["description"] = None
-
-        return result
+            return crawlingOther(url)
