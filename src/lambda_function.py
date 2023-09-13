@@ -5,8 +5,9 @@ from isodate import parse_duration
 from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 import os
-
-google_api_key = os.environ['GOOGLE_API_KEY']
+from place import isKakaoPlace, crawlingKakaoPlace
+from place import isNaverPlace, crawlingNaverPlace
+from other import crawlingOther
 
 def lambda_handler(event, context):
     
@@ -42,7 +43,7 @@ def isVelogArticle(url):
     return bool(url_match)
 
 def isTistoryArticle(url):
-    url_rex = r"https:\/\/\S+.tistory.com\/\d+"
+    url_rex = r"https:\/\/\S+.tistory.com\/(\d+|entry\/\S+)$"
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
@@ -56,8 +57,13 @@ def isCoupangProduct(url):
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
+def isMobileCoupangProduct(url):
+    url_rex = r"https?:\/\/m.coupang.com\/vm\/products\/(\d+)\S+"
+    url_match = re.search(url_rex, url)
+    return bool(url_match)
+
 def is11stProduct(url):
-    url_rex = r"https:\/\/www.11st.co.kr\/products\/\S+"
+    url_rex = r"https?:\/\/www.11st.co.kr\/products\/\S+"
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
@@ -82,7 +88,7 @@ def isWemakepriceProduct(url):
     return bool(url_match)
 
 def isNaverProduct(url):
-    url_rex = r"https?:\/\/\w+.naver.com\/\w+\/products\/\d+\?\S+"
+    url_rex = r"https?:\/\/\w+.naver.com\/\w+\/products\/\d+"
     url_match = re.search(url_rex, url, re.IGNORECASE)
     return bool(url_match)
 
@@ -107,6 +113,13 @@ def getNaverArticlePublishedDate(input_date):
 
 def crawling(url):
 
+    if isKakaoPlace(url):
+        return crawlingKakaoPlace(url)
+    
+    if isNaverPlace(url):
+        return crawlingNaverPlace(url)
+
+
     result = {}
 
     header = {
@@ -126,6 +139,9 @@ def crawling(url):
             soup = BeautifulSoup(response.content.decode('ks_c_5601-1987', 'replace'), 'html.parser')
        
         if isYoutubeVideo(url):
+            
+            #google_api_key 가져오기
+            google_api_key = os.environ.get('GOOGLE_API_KEY', None)
             
             #id찾기
             id_regex = r"(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu.be\/)([\w-]{11})"
@@ -239,6 +255,7 @@ def crawling(url):
             soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
         
             result = {
+                "site_name" : "NaverBlog",
                 "type" : "article",
                 "page_url" : url,
             }
@@ -336,11 +353,11 @@ def crawling(url):
             
             try:
                 author_image_url = ""
-                author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
+                author_image_url_regex = r"https?:\/\/tistory1.daumcdn.net\/tistory\/\d+\/attach\/[0-9a-z]{32}"
                 author_image_url_match = re.search(author_image_url_regex, html)
 
                 if author_image_url_match:
-                    author_image_url = author_image_url_match.group(1)
+                    author_image_url = author_image_url_match.group(0)
                     result["author_image_url"] = author_image_url
             except (TypeError, KeyError):
                 result["author_image_url"] = None
@@ -384,15 +401,15 @@ def crawling(url):
                 author_image_url_match = re.search(author_image_url_regex, html)
 
                 if author_image_url_match:
-                    author_image_url = author_image_url_match.group(1)
-                    result["author_image_url"] = author_image_url
+                    author_image_url = author_image_url_match.group(1)[:-1]
+                    result["author_image_url"] = "https://" + author_image_url
             except (TypeError, KeyError):
                 result["author_image_url"] = None
 
             try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
             except (TypeError, KeyError): result["title"] = None
 
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content'][:2]
+            try: result["thumbnail_url"] = "https:" + soup.select_one('meta[property="og:image"]')['content']
             except (TypeError, KeyError): result["thumbnail_url"] = None
 
             try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
@@ -416,6 +433,8 @@ def crawling(url):
                 "price" : soup.select_one('meta[property="og:description"]')['content'].split(':')[1][1:], #12,900원
                 "site_name" : "11st",
             }
+
+            return result
         
         #쿠팡
         elif isCoupangProduct(url):
@@ -428,14 +447,40 @@ def crawling(url):
             try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
             except (TypeError, KeyError): result["title"] = None
 
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            try: result["thumbnail_url"] = "https:" + soup.select_one('meta[property="og:image"]')['content']
             except (TypeError, KeyError): result["thumbnail_url"] = None
 
             try: result["price"] = soup.select_one("span.total-price > strong").text
             except (TypeError, KeyError): result["price"] = None
 
             return result
-        
+             
+        #모바일 쿠팡
+        elif isMobileCoupangProduct(url):
+            result = {
+                "type" : "product",
+                "page_url" : url,
+                "site_name" : "Coupang",
+            }
+            #productId parsing
+            productId_regex = r"https?:\/\/m.coupang.com\/vm\/products\/(\d+)\S+"
+            productId_match = re.search(productId_regex, url)
+            productId = productId_match.group(1)
+            
+
+            url = 'https://m.coupang.com/vm/v4/enhanced-pdp/products/' + productId
+            response = requests.get(url, headers=header)
+
+            json_obj = json.loads(response.text)
+            vendorItemDetail = json_obj.get('rData').get('vendorItemDetail')
+            item = vendorItemDetail.get('item')
+
+            result['title'] = item.get('productName')
+            result['price'] = str(item.get('couponPrice'))
+            result['thumbnail_url'] = vendorItemDetail.get('resource').get('originalSquare').get('thumbnailUrl')
+            
+            return result
+
         #옥션
         elif isAuctionProduct(url):
             result = {
@@ -447,11 +492,13 @@ def crawling(url):
             try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
             except (TypeError, KeyError): result["title"] = None
 
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content'][2:]
+            try: result["thumbnail_url"] = "https://" + soup.select_one('meta[property="og:image"]')['content'][2:]
             except (TypeError, KeyError): result["thumbnail_url"] = None
 
             try: result["price"] = soup.select_one('meta[property="og:description"]')['content']
             except (TypeError, KeyError): result["price"] = None
+
+            return result
 
         #G마켓
         elif isGmarketProduct(url):
@@ -464,7 +511,7 @@ def crawling(url):
             try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
             except (TypeError, KeyError): result["title"] = None
 
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content'][2:]
+            try: result["thumbnail_url"] = "https://" + soup.select_one('meta[property="og:image"]')['content'][2:]
             except (TypeError, KeyError): result["thumbnail_url"] = None
 
             try: result["price"] = soup.select_one('meta[property="og:description"]')['content']
@@ -488,6 +535,8 @@ def crawling(url):
 
             try: result["price"] = soup.select_one('meta[property="og:price"]')['content']
             except (TypeError, KeyError): result["price"] = None
+
+            return result
         
         #위메프 (상품 구현, 여행레저 미구현)
         elif isWemakepriceProduct(url):
@@ -543,18 +592,4 @@ def crawling(url):
             return result
         
         else :
-            result = {
-                "type": "other",
-                "page_url": url,
-            }
-            
-            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
-            except (TypeError, KeyError): result["title"] = None
-
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
-            except (TypeError, KeyError): result["thumbnail_url"] = None
-                
-            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
-            except (TypeError, KeyError): result["description"] = None
-
-        return result
+            return crawlingOther(url)
