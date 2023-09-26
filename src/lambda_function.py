@@ -11,8 +11,11 @@ from other import crawlingOther
 
 def lambda_handler(event, context):
     
-    url = event['url']
-    url = url.strip()
+    try : url = event['url']
+    except(KeyError) : 
+        data = json.loads(event["body"])
+        url = data['url']
+        url = url.strip()
     
     return {
         'statusCode': 200,
