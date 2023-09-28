@@ -13,24 +13,29 @@ def crawlingOther(url):
     if response.status_code == 200:
         html = response.text
 
+        print(response.encoding)
+
         if response.encoding.lower() == 'utf-8':
             soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
     
         elif response.encoding.lower() == 'ks_c_5601-1987':
             soup = BeautifulSoup(response.content.decode('ks_c_5601-1987', 'replace'), 'html.parser')
-    
-    result = {
-        "type": "other",
-        "page_url": url,
-    }
-    
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
-    except (TypeError, KeyError): result["title"] = None
 
-    try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
-    except (TypeError, KeyError): result["thumbnail_url"] = None
+        elif response.encoding.lower() == 'iso-8859-1':
+            soup = BeautifulSoup(response.content.decode('iso-8859-1', 'replace'), 'html.parser')
+    
+        result = {
+            "type": "other",
+            "page_url": url,
+        }
         
-    try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
-    except (TypeError, KeyError): result["description"] = None
+        try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+        except (TypeError, KeyError): result["title"] = None
 
-    return result
+        try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+        except (TypeError, KeyError): result["thumbnail_url"] = None
+            
+        try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+        except (TypeError, KeyError): result["description"] = None
+
+        return result
