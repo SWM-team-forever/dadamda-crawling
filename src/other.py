@@ -22,18 +22,18 @@ def crawlingOther(url):
         elif response.encoding.lower() == 'iso-8859-1':
             soup = BeautifulSoup(response.content.decode('iso-8859-1', 'replace'), 'html.parser')
     
-    result = {
-        "type": "other",
-        "page_url": url,
-    }
-    
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
-    except (TypeError, KeyError): result["title"] = None
-
-    try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
-    except (TypeError, KeyError): result["thumbnail_url"] = None
+        result = {
+            "type": "other",
+            "page_url": url,
+        }
         
-    try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
-    except (TypeError, KeyError): result["description"] = None
+        try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+        except (TypeError, KeyError): result["title"] = None
 
-    return result
+        try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+        except (TypeError, KeyError): result["thumbnail_url"] = None
+            
+        try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+        except (TypeError, KeyError): result["description"] = None
+
+        return result
