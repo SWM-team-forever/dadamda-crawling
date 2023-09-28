@@ -13,8 +13,6 @@ def crawlingOther(url):
     if response.status_code == 200:
         html = response.text
 
-        print(response.encoding)
-
         if response.encoding.lower() == 'utf-8':
             soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
     
