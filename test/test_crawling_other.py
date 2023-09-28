@@ -10,3 +10,10 @@ def test_otherCrawling():
     assert result['type'] == 'other'
     assert result['title'] == '운영체제'
     assert result['thumbnail_url'] == 'http://www.kocw.net/common/contents/thumbnail/07/t1226304.jpg'
+
+def test_otherCrawling2():
+    result = crawlingOther("https://www.coursera.org/professional-certificates/meta-front-end-developer")
+
+    assert result['type'] == 'other'
+    assert result['title'] == 'Meta Front-End Developer'
+    assert result['thumbnail_url'] == 'https://s3.amazonaws.com/coursera_assets/meta_images/generated/XDP/XDP~SPECIALIZATION!~meta-front-end-developer/XDP~SPECIALIZATION!~meta-front-end-developer.jpeg'

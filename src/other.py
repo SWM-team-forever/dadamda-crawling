@@ -18,6 +18,9 @@ def crawlingOther(url):
     
         elif response.encoding.lower() == 'ks_c_5601-1987':
             soup = BeautifulSoup(response.content.decode('ks_c_5601-1987', 'replace'), 'html.parser')
+
+        elif response.encoding.lower() == 'iso-8859-1':
+            soup = BeautifulSoup(response.content.decode('iso-8859-1', 'replace'), 'html.parser')
     
     result = {
         "type": "other",
