@@ -24,3 +24,10 @@ def test_otherCrawling4():
 
     assert result['type'] == 'other'
     assert result['title'] == 'Automatic PageView Tracking using React Router'
+
+def test_otherCrawling5():
+    result = crawlingOther("https://haru-study.com/progress/522")
+    
+    assert result['type'] == 'other'
+    assert result['thumbnail_url'] == 'https://haru-study.com/assets/og-image.png'
+
