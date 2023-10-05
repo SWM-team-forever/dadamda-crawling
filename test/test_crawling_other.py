@@ -24,3 +24,17 @@ def test_otherCrawling3():
     assert result['type'] == 'other'
     assert result['title'] == 'Amplitude로 우리 제품의 리텐션 제대로 보는 방법'
     assert result['thumbnail_url'] == 'https://assets-global.website-files.com/5f1008192dda2baf6f4e16c3/5f34a3d731072981ddf0bcaf_image--40-.png'
+
+def test_otherCrawling4():
+    result = crawlingOther("https://www.sheshbabu.com/posts/automatic-pageview-tracking-using-react-router/")
+
+    assert result['type'] == 'other'
+    assert result['title'] == 'Automatic PageView Tracking using React Router'
+
+def test_otherCrawling5():
+    result = crawlingOther("https://haru-study.com/progress/522")
+    
+    assert result['type'] == 'other'
+    assert result['thumbnail_url'] == 'https://haru-study.com/assets/og-image.png'
+
+
