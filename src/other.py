@@ -13,14 +13,15 @@ def crawlingOther(url):
 
     if response.status_code == 200:
         html = response.text
+        encoding = response.apparent_encoding
 
-        if response.encoding.lower() == 'utf-8':
+        if encoding == 'utf-8':
             soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
     
-        elif response.encoding.lower() == 'ks_c_5601-1987':
+        elif encoding == 'ks_c_5601-1987':
             soup = BeautifulSoup(response.content.decode('ks_c_5601-1987', 'replace'), 'html.parser')
 
-        elif response.encoding.lower() == 'iso-8859-1':
+        elif encoding == 'iso-8859-1':
             soup = BeautifulSoup(response.content.decode('iso-8859-1', 'replace'), 'html.parser')
     
         result = {
