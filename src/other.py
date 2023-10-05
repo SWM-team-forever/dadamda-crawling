@@ -43,14 +43,14 @@ def crawlingOther(url):
                 result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
             except (TypeError, KeyError):
                 result["thumbnail_url"] = None
-
-        if(result["thumbnail_url"] != None and result["thumbnail_url"].startswith("//")):
-            result["thumbnail_url"] = "https:" + result["thumbnail_url"]
-        
-        if(result["thumbnail_url"] != None and result["thumbnail_url"].startswith("/")):
-            parsed = parse.urlparse(url)
-            result["thumbnail_url"] = parsed.scheme + "://" + parsed.netloc + result["thumbnail_url"]
             
+        if(result["thumbnail_url"] is not None) :
+            if (result["thumbnail_url"].startswith("//")):
+                result["thumbnail_url"] = "https:" + result["thumbnail_url"]
+            elif (result["thumbnail_url"].startswith("/")):
+                parsed = parse.urlparse(url)
+                result["thumbnail_url"] = parsed.scheme + "://" + parsed.netloc + result["thumbnail_url"]
+
         try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
         except (TypeError, KeyError): result["description"] = None
 
