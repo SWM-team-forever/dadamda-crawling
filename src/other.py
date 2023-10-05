@@ -27,8 +27,12 @@ def crawlingOther(url):
             "page_url": url,
         }
         
-        try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
-        except (TypeError, KeyError): result["title"] = None
+        try: result["title"] = soup.select_one('meta[name="twitter:title"]')['content']
+        except (TypeError, KeyError):
+            try:
+                result["title"] = soup.select_one('meta[property="og:title"]')['content']
+            except (TypeError, KeyError):
+                result["title"] = soup.title.string if soup.title else None
 
         try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
         except (TypeError, KeyError): result["thumbnail_url"] = None
