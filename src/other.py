@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from urllib import parse
 
 def crawlingOther(url):
 
@@ -30,8 +31,17 @@ def crawlingOther(url):
         try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
         except (TypeError, KeyError): result["title"] = None
 
-        try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
-        except (TypeError, KeyError): result["thumbnail_url"] = None
+        try:
+            result["thumbnail_url"] = soup.select_one('meta[name="twitter:image"]')['content']
+        except (TypeError, KeyError):
+            try:
+                result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
+            except (TypeError, KeyError):
+                result["thumbnail_url"] = None
+        
+        if(result["thumbnail_url"] != None and result["thumbnail_url"].startswith("/")):
+            parsed = parse.urlparse(url)
+            result["thumbnail_url"] = parsed.scheme + "://" + parsed.netloc + result["thumbnail_url"]
             
         try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
         except (TypeError, KeyError): result["description"] = None
