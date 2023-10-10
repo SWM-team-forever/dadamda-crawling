@@ -15,7 +15,7 @@ def test_youtube():
     assert result.get('type') == "video"
     assert result.get('page_url') == 'https://www.youtube.com/watch?v=R8u-_TS0cQk'
     assert result.get('embed_url') == 'https://www.youtube.com/embed/R8u-_TS0cQk'
-    assert result.get('channel_image_url') == 'https://yt3.ggpht.com/ytc/AOPolaQdbHf7pJwPnzfgOJB0WG4abaugLOFGcsltdkAN=s800-c-k-c0x00ffffff-no-rj'
+    assert result.get('channel_image_url') == 'https://yt3.ggpht.com/ytc/APkrFKY5lAasc_CYWP_8Hrw0vmXECEqSRf1n5_2vl_99=s800-c-k-c0x00ffffff-no-rj'
     assert result.get('site_name') == "YouTube"
     assert result.get('published_date') == 1692765326
     assert result.get('thumbnail_url') == 'https://i.ytimg.com/vi/R8u-_TS0cQk/hqdefault.jpg'
