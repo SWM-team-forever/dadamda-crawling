@@ -2,9 +2,9 @@ import os
 import sys
 sys.path.append(os.path.abspath('./src'))
 
-from lambda_function import isTistoryArticle
-from lambda_function import isMobileCoupangProduct
-from lambda_function import is11stProduct
+from article import isTistoryArticle
+from product import isMobileCoupangProduct, is11stProduct
+
 
 def test_isTistoryArticle():
     tistory_success_url_list = """
