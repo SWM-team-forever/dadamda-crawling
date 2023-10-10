@@ -37,4 +37,9 @@ def test_otherCrawling5():
     assert result['type'] == 'other'
     assert result['thumbnail_url'] == 'https://haru-study.com/assets/og-image.png'
 
+def test_otherCrawling6():
+    result = crawlingOther("https://www.tistory.com/auth/login?redirectUrl=https%3A%2F%2Fwhy-doing.tistory.com#")
 
+    assert result['type'] == 'other'
+    assert result['title'] == 'Tistory'
+    assert result['thumbnail_url'] == 'https://t1.daumcdn.net/tistory_admin/static/images/openGraph/tistoryOpengraph.png'
