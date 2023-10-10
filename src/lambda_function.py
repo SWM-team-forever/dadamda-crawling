@@ -10,6 +10,10 @@ from place import isNaverPlace, crawlingNaverPlace
 from other import crawlingOther
 from video import isYoutubeVideo, crawlingYoutubeVideo
 from video import isNaverTvVideo, crawlingNaverTvVideo
+from article import isNaverArticle, crawlingNaverArticle
+from article import isVelogArticle, crawlingVelogArticle
+from article import isTistoryArticle, crawlingTistoryArticle
+from article import isBrunchArticle, crawlingBrunchArticle
 
 def lambda_handler(event, context):
     
@@ -26,26 +30,6 @@ def lambda_handler(event, context):
         },
         'body': json.dumps(crawling(url), ensure_ascii=False)
     }
-
-def isNaverArticle(url):
-    url_rex = r"https:\/\/blog.naver.com\/\w+\/\d+"
-    url_match = re.search(url_rex, url)
-    return bool(url_match)
-
-def isVelogArticle(url):
-    url_rex = r"https:\/\/velog.io\/@\S+\/\S+"
-    url_match = re.search(url_rex, url)
-    return bool(url_match)
-
-def isTistoryArticle(url):
-    url_rex = r"https:\/\/\S+.tistory.com\/(\d+|entry\/\S+)$"
-    url_match = re.search(url_rex, url)
-    return bool(url_match)
-
-def isBrunchArticle(url):
-    url_rex = r"https:\/\/brunch.co.kr\/@\S+\/\d+"
-    url_match = re.search(url_rex, url)
-    return bool(url_match)
 
 def isCoupangProduct(url):
     url_rex = r"https:\/\/www.coupang.com\/vp\/products\/\S+"
@@ -120,6 +104,17 @@ def crawling(url):
     if isNaverTvVideo(url):
         return crawlingNaverTvVideo(url)
 
+    if isNaverArticle(url):
+        return crawlingNaverArticle(url)
+    
+    if isVelogArticle(url):
+        return crawlingVelogArticle(url)
+    
+    if isTistoryArticle(url):
+        return crawlingTistoryArticle(url)
+    
+    if isBrunchArticle(url):
+        return crawlingBrunchArticle(url)
 
     result = {}
 
@@ -139,186 +134,9 @@ def crawling(url):
         elif response.encoding.lower() == 'ks_c_5601-1987':
             soup = BeautifulSoup(response.content.decode('ks_c_5601-1987', 'replace'), 'html.parser')
        
-    
-        if isNaverArticle(url): 
-            #iframe 안에 존재하는 새로운 url 찾기
-            redirect_url = "https://blog.naver.com" + soup.select_one('iframe#mainFrame')['src']
-
-            response = requests.get(redirect_url, headers=header)
-            html = response.text
-            soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
-        
-            result = {
-                "site_name" : "NaverBlog",
-                "type" : "article",
-                "page_url" : url,
-            }
-
-            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
-            except (TypeError, KeyError): result["title"] = None
-
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
-            except (TypeError, KeyError): result["thumbnail_url"] = None
-
-            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
-            except (TypeError, KeyError): result["description"] = None
-
-            try: result["author"] = soup.select_one('meta[property="naverblog:nickname"]')['content']
-            except (TypeError, KeyError): result["author"] = None
-
-            try: result["author_image_url"] = soup.select_one('meta[property="naverblog:profile_image"]')['content']
-            except (TypeError, KeyError): result["author_image_url"] = None
-
-            try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
-            except (TypeError, KeyError): result["blog_name"] = None
-
-            try: result["published_date"] = getNaverArticlePublishedDate(soup.select_one('.se_publishDate').text)
-            except (TypeError, KeyError): result["published_date"] = None
-            
-            return result
-
-        elif isVelogArticle(url):
-
-            result = {
-                "type" : "article",
-                "page_url" : url,
-                "site_name" : "Velog",
-            }
-            
-            try:
-                # publishedDate 찾기
-                regex = r'"released_at":"([^"]+)"'
-                match = re.search(regex, html)
-
-                kst_time_formatted = ""
-
-                if match:
-                    published_date = match.group(1)
-                    utc_time = datetime.strptime(published_date, "%Y-%m-%dT%H:%M:%S.%fZ")
-                    result["published_date"] = int(utc_time.timestamp())
-
-            except (TypeError, KeyError): 
-                result["published_date"] = None
-
-            try:
-                # author_image_url 찾기
-                author_image_url = ""
-                author_image_url_regex = r"https://velog.velcdn.com/images/\w+/profile/\S+\.\w+"
-                author_image_url_match = re.search(author_image_url_regex, html)
-
-                if author_image_url_match:
-                    author_image_url = author_image_url_match.group()
-                    result["author_image_url"] = author_image_url
-            except (TypeError, KeyError):
-                result["author_image_url"] = None
-
-            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
-            except (TypeError, KeyError): result["title"] = None
-
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
-            except (TypeError, KeyError): result["thumbnail_url"] = None
-
-            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
-            except (TypeError, KeyError): result["description"] = None
-
-            try: result["author"] = soup.select_one('.username').text
-            except (TypeError, KeyError): result["author"] = None
-
-            try: result["blog_name"] = soup.select_one('.user-logo').text
-            except (TypeError, KeyError): result["blog_name"] = None
-
-            return result
-        
-        elif isTistoryArticle(url):
-
-            result = {
-                "type" : "article",
-                "page_url" : url,
-                "site_name" : "Tistory",
-            }
-
-            try:
-                # UnixTime으로 변환
-                rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
-                utc_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M:%S%z")
-                result["published_date"] = int(utc_time.timestamp())
-            except (TypeError, KeyError):
-                result["published_date"] = None
-            
-            try:
-                author_image_url = ""
-                author_image_url_regex = r"https?:\/\/tistory1.daumcdn.net\/tistory\/\d+\/attach\/[0-9a-z]{32}"
-                author_image_url_match = re.search(author_image_url_regex, html)
-
-                if author_image_url_match:
-                    author_image_url = author_image_url_match.group(0)
-                    result["author_image_url"] = author_image_url
-            except (TypeError, KeyError):
-                result["author_image_url"] = None
-            
-            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
-            except (TypeError, KeyError): result["title"] = None
-
-            try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
-            except (TypeError, KeyError): result["thumbnail_url"] = None
-
-            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
-            except (TypeError, KeyError): result["description"] = None
-
-            try: result["author"] = soup.select_one('meta[property="og:article:author"]')['content']
-            except (TypeError, KeyError): result["author"] = None
-
-            try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
-            except (TypeError, KeyError): result["blog_name"] = None
-
-            return result
-        
-        #브런치
-        elif isBrunchArticle(url):
-
-            result = {
-                "type" : "article",
-                "page_url" : url,
-                "site_name" : "Brunch",
-            }
-
-            try:
-                rfc3339_time_str = soup.select_one('meta[property="article:published_time"]')['content']
-                utc_time = datetime.strptime(rfc3339_time_str, "%Y-%m-%dT%H:%M%z")
-                result["published_date"] = int(utc_time.timestamp())
-            except (TypeError, KeyError):
-                result["published_date"] = None
-
-            try:
-                author_image_url = ""
-                author_image_url_regex = r"(?:\/\/)?(img1\.daumcdn\.net\/thumb\/C200x200(?:\.fjpg)?\/\?fname=http:\/\/t1\.daumcdn\.net\/brunch\/service\/\S+\/\S+)"
-                author_image_url_match = re.search(author_image_url_regex, html)
-
-                if author_image_url_match:
-                    author_image_url = author_image_url_match.group(1)[:-1]
-                    result["author_image_url"] = "https://" + author_image_url
-            except (TypeError, KeyError):
-                result["author_image_url"] = None
-
-            try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
-            except (TypeError, KeyError): result["title"] = None
-
-            try: result["thumbnail_url"] = "https:" + soup.select_one('meta[property="og:image"]')['content']
-            except (TypeError, KeyError): result["thumbnail_url"] = None
-
-            try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
-            except (TypeError, KeyError): result["description"] = None
-
-            try: result["author"] = soup.select_one('meta[name="og:article:author"]')['content']
-            except (TypeError, KeyError): result["author"] = None
-
-            try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
-            except (TypeError, KeyError): result["blog_name"] = None
-
-            return result
         
         #11번가
-        elif is11stProduct(url):
+        if is11stProduct(url):
             result = {
                 "type" : "product",
                 "page_url" : url,
