@@ -17,5 +17,5 @@ def test_crawling_mobile_coupang():
     result = crawling(url)
 
     assert result.get('title') == "나카야 스탠딩 캐니스터 밀폐용기"
-    assert result.get('price') == "7000"
-    assert result.get('thumbnail_url') == "https://thumbnail10.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2018/04/26/15/9/fc240466-92b9-495d-9ee2-69dc878725c3.jpg"
+    assert result.get('price') == "7800"
+    assert result.get('thumbnail_url') == "https://thumbnail9.coupangcdn.com/thumbnails/remote/492x492ex/image/retail/images/2018/04/26/15/3/604f71c7-d6be-40aa-b139-c0cd88b96faa.jpg"
