@@ -7,7 +7,7 @@ from lambda_function import crawling
 from video import crawlingYoutubeVideo
 from env import setGoogleKey
 
-def test_youtube_on_crawing():
+def test_youtube_on_crawling():
     setGoogleKey()
     url = 'https://www.youtube.com/watch?v=R8u-_TS0cQk'
     result = crawling(url)
