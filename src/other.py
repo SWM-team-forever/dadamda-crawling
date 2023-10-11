@@ -51,8 +51,13 @@ def crawlingOther(url):
                 parsed = parse.urlparse(url)
                 result["thumbnail_url"] = parsed.scheme + "://" + parsed.netloc + result["thumbnail_url"]
 
-        try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
-        except (TypeError, KeyError): result["description"] = None
+        try:
+            result["description"] = soup.select_one('meta[name="twitter:description"]')['content']
+        except (TypeError, KeyError):
+            try:
+                result["description"] = soup.select_one('meta[property="og:description"]')['content']
+            except (TypeError, KeyError):
+                result["description"] = soup.select_one('meta[name="description"]')['content'] if soup.select_one('meta[name="description"]') else None
 
         return result
 
