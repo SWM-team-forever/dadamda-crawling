@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from urllib import parse
+import max_value_constants as constant
 
 def crawlingOther(url):
 
@@ -29,12 +30,12 @@ def crawlingOther(url):
             "page_url": url,
         }
         
-        try: result["title"] = soup.select_one('meta[name="twitter:title"]')['content']
+        try: result["title"] = soup.select_one('meta[name="twitter:title"]')['content'][:constant.TITLE_MAX_LENGTH]
         except (TypeError, KeyError):
             try:
-                result["title"] = soup.select_one('meta[property="og:title"]')['content']
+                result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
             except (TypeError, KeyError):
-                result["title"] = soup.title.string if soup.title else None
+                result["title"] = (soup.title.string)[:constant.TITLE_MAX_LENGTH] if soup.title else None
 
         try:
             result["thumbnail_url"] = soup.select_one('meta[name="twitter:image"]')['content']
@@ -52,12 +53,12 @@ def crawlingOther(url):
                 result["thumbnail_url"] = parsed.scheme + "://" + parsed.netloc + result["thumbnail_url"]
 
         try:
-            result["description"] = soup.select_one('meta[name="twitter:description"]')['content']
+            result["description"] = soup.select_one('meta[name="twitter:description"]')['content'][:constant.DESCRIPTION_MAX_LENGTH]
         except (TypeError, KeyError):
             try:
-                result["description"] = soup.select_one('meta[property="og:description"]')['content']
+                result["description"] = soup.select_one('meta[property="og:description"]')['content'][:constant.DESCRIPTION_MAX_LENGTH]
             except (TypeError, KeyError):
-                result["description"] = soup.select_one('meta[name="description"]')['content'] if soup.select_one('meta[name="description"]') else None
+                result["description"] = soup.select_one('meta[name="description"]')['content'][:constant.DESCRIPTION_MAX_LENGTH] if (soup.select_one('meta[name="description"]'))[:constant.DESCRIPTION_MAX_LENGTH] else None
 
         return result
 

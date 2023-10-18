@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import json
 import os
 from other import crawlingOther
+import max_value_constants as constant
 
 def isKakaoPlace(url):
     pattern1 = r'^https?://kko\.to/'
@@ -62,13 +63,14 @@ def crawlingKakaoPlace(url):
     except(TypeError, KeyError): 
         return crawlingOther(url)
 
-    try : result['title'] = place_obj['basicInfo']['placenamefull']
+    try : result['title'] = place_obj['basicInfo']['placenamefull'][:constant.TITLE_MAX_LENGTH]
     except(TypeError, KeyError): result['title'] = None
     
     try :
         result['address'] = place_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + place_obj['basicInfo']['address']['newaddr']['newaddrfull']
         if 'addrdetail' in place_obj['basicInfo']['address']:
             result['address'] += " " + place_obj['basicInfo']['address']['addrdetail']
+        result['address'] = result['address'][:constant.ADDRESS_MAX_LENGTH]
     except(TypeError, KeyError): result['address'] = None
 
     try : result['phonenum'] = place_obj['basicInfo']['phonenum']
@@ -80,7 +82,7 @@ def crawlingKakaoPlace(url):
     try : result['homepage'] = place_obj['basicInfo']['homepage']
     except(TypeError, KeyError): result['homepage'] = None
     
-    try : result['category'] = place_obj['basicInfo']['category']['catename']
+    try : result['category'] = place_obj['basicInfo']['category']['catename'][:constant.CATEGORY_MAX_LENGTH]
     except(TypeError, KeyError): result['category'] = None
 
     return result
@@ -128,16 +130,16 @@ def crawlingNaverPlace(url):
     except(TypeError, KeyError): 
         return crawlingOther(url)
 
-    try : result['title'] = place_obj['name']
+    try : result['title'] = place_obj['name'][:constant.TITLE_MAX_LENGTH]
     except(TypeError, KeyError): result['title'] = None
 
-    try: result['address'] = place_obj['roadAddress']
+    try: result['address'] = place_obj['roadAddress'][:constant.ADDRESS_MAX_LENGTH]
     except(TypeError, KeyError): result['address'] = None
 
     try: result['phonenum'] = place_obj['buttons']['phone']
     except(TypeError, KeyError): result['phonenum'] = None
 
-    try : result['category'] = place_obj['category']
+    try : result['category'] = place_obj['category'][:constant.CATEGORY_MAX_LENGTH]
     except(TypeError, KeyError): result['category'] = None
 
     return result

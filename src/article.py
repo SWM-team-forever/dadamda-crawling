@@ -2,6 +2,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
+import max_value_constants as constant
 
 
 def isNaverArticle(url):
@@ -53,22 +54,22 @@ def crawlingNaverArticle(url):
         "page_url" : url,
     }
 
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+    try: result["description"] = soup.select_one('meta[property="og:description"]')['content'][:constant.DESCRIPTION_MAX_LENGTH]
     except (TypeError, KeyError): result["description"] = None
 
-    try: result["author"] = soup.select_one('meta[property="naverblog:nickname"]')['content']
+    try: result["author"] = soup.select_one('meta[property="naverblog:nickname"]')['content'][:constant.AUTHOR_MAX_LENGTH]
     except (TypeError, KeyError): result["author"] = None
 
     try: result["author_image_url"] = soup.select_one('meta[property="naverblog:profile_image"]')['content']
     except (TypeError, KeyError): result["author_image_url"] = None
 
-    try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
+    try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content'][:constant.BLOG_NAME_MAX_LENGTH]
     except (TypeError, KeyError): result["blog_name"] = None
 
     try: result["published_date"] = getNaverArticlePublishedDate(soup.select_one('.se_publishDate').text)
@@ -149,19 +150,19 @@ def crawlingVelogArticle(url):
     except (TypeError, KeyError):
         result["author_image_url"] = None
 
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+    try: result["description"] = soup.select_one('meta[property="og:description"]')['content'][:constant.DESCRIPTION_MAX_LENGTH]
     except (TypeError, KeyError): result["description"] = None
 
-    try: result["author"] = soup.select_one('.username').text
+    try: result["author"] = (soup.select_one('.username').text)[:constant.AUTHOR_MAX_LENGTH]
     except (TypeError, KeyError): result["author"] = None
 
-    try: result["blog_name"] = soup.select_one('.user-logo').text
+    try: result["blog_name"] = (soup.select_one('.user-logo').text)[:constant.BLOG_NAME_MAX_LENGTH]
     except (TypeError, KeyError): result["blog_name"] = None
 
     return result
@@ -202,19 +203,19 @@ def crawlingTistoryArticle(url):
     except (TypeError, KeyError):
         result["author_image_url"] = None
     
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+    try: result["description"] = soup.select_one('meta[property="og:description"]')['content'][:constant.DESCRIPTION_MAX_LENGTH]
     except (TypeError, KeyError): result["description"] = None
 
-    try: result["author"] = soup.select_one('meta[property="og:article:author"]')['content']
+    try: result["author"] = soup.select_one('meta[property="og:article:author"]')['content'][:constant.AUTHOR_MAX_LENGTH]
     except (TypeError, KeyError): result["author"] = None
 
-    try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
+    try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content'][:constant.BLOG_NAME_MAX_LENGTH]
     except (TypeError, KeyError): result["blog_name"] = None
 
     return result
@@ -254,19 +255,19 @@ def crawlingBrunchArticle(url):
     except (TypeError, KeyError):
         result["author_image_url"] = None
 
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = "https:" + soup.select_one('meta[property="og:image"]')['content']
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+    try: result["description"] = soup.select_one('meta[property="og:description"]')['content'][:constant.DESCRIPTION_MAX_LENGTH]
     except (TypeError, KeyError): result["description"] = None
 
-    try: result["author"] = soup.select_one('meta[name="og:article:author"]')['content']
+    try: result["author"] = soup.select_one('meta[name="og:article:author"]')['content'][:constant.AUTHOR_MAX_LENGTH]
     except (TypeError, KeyError): result["author"] = None
 
-    try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content']
+    try: result["blog_name"] = soup.select_one('meta[property="og:site_name"]')['content'][:constant.BLOG_NAME_MAX_LENGTH]
     except (TypeError, KeyError): result["blog_name"] = None
 
     return result

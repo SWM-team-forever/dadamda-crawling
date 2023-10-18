@@ -5,6 +5,7 @@ import requests
 from datetime import datetime
 from isodate import parse_duration
 from bs4 import BeautifulSoup
+import max_value_constants as constant
 
 def isYoutubeVideo(url):
     url_rex = r"(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com\/(?:watch\?.*v=|shorts\/)|youtu.be\/)([\w-]{11})"
@@ -60,16 +61,16 @@ def crawlingYoutubeVideo(url):
     except (TypeError, KeyError):
         result["published_date"] = None
     
-    try: result["title"] = json_obj['items'][0]['snippet']['title']
+    try: result["title"] = json_obj['items'][0]['snippet']['title'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = json_obj['items'][0]['snippet']['thumbnails']['high']['url']
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["description"] = json_obj['items'][0]['snippet']['description']
+    try: result["description"] = json_obj['items'][0]['snippet']['description'][:constant.DESCRIPTION_MAX_LENGTH]
     except (TypeError, KeyError): result["description"] = None
 
-    try: result["channel_name"] = json_obj['items'][0]['snippet']['channelTitle']
+    try: result["channel_name"] = json_obj['items'][0]['snippet']['channelTitle'][:constant.CHANNEL_NAME_MAX_LENGTH]
     except (TypeError, KeyError): result["channel_name"] = None
 
     try: result["watched_cnt"] = json_obj['items'][0]['statistics']['viewCount']
@@ -103,16 +104,16 @@ def crawlingNaverTvVideo(url):
         "site_name" : "Naver TV",
     }
 
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+    try: result["description"] = soup.select_one('meta[property="og:description"]')['content'][:constant.DESCRIPTION_MAX_LENGTH]
     except (TypeError, KeyError): result["description"] = None
 
-    try: result["channel_name"] = soup.select_one('meta[property="og:article:author"]')['content']
+    try: result["channel_name"] = soup.select_one('meta[property="og:article:author"]')['content'][:constant.CHANNEL_NAME_MAX_LENGTH]
     except (TypeError, KeyError): result["channel_name"] = None
 
     try: result["channel_image_url"] = soup.select_one('meta[property="og:article:author:image"]')['content']
