@@ -17,7 +17,7 @@ def test_mobileNaverArticleCrawling():
     assert result['blog_name'] == "네이버 블로그 | 자두의 생활요리"
     assert result['published_date'] == 1614115140
     assert result['site_name'] == "NaverBlog"
-    assert result['page_url'] == "https://blog.naver.com/toast316/222254401534"
+    assert result['page_url'] == "https://m.blog.naver.com/toast316/222254401534"
 
 def test_mobileNaverArticleCrawling_on_crawling():
     url = "https://m.blog.naver.com/toast316/222254401534"
@@ -31,4 +31,4 @@ def test_mobileNaverArticleCrawling_on_crawling():
     assert result['blog_name'] == "네이버 블로그 | 자두의 생활요리"
     assert result['published_date'] == 1614115140
     assert result['site_name'] == "NaverBlog"
-    assert result['page_url'] == "https://blog.naver.com/toast316/222254401534"
+    assert result['page_url'] == "https://m.blog.naver.com/toast316/222254401534"
