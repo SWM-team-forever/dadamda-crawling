@@ -77,8 +77,13 @@ def crawlingNaverArticle(url):
     return result
 
 def crawlingMobileNaverArticle(url):
+
+    original_url = url
     url = url.replace("m.blog.naver.com", "blog.naver.com")
-    return crawlingNaverArticle(url)
+    result = crawlingNaverArticle(url)
+    
+    result["page_url"] = original_url
+    return result
 
 
 def getNaverArticlePublishedDate(input_date):
