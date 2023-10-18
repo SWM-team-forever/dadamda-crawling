@@ -9,6 +9,11 @@ def isNaverArticle(url):
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
+def isMobileNaverArticle(url):
+    url_rex = r"https:\/\/m.blog.naver.com\/\w+\/\d+"
+    url_match = re.search(url_rex, url)
+    return bool(url_match)
+
 def isVelogArticle(url):
     url_rex = r"https:\/\/velog.io\/@\S+\/\S+"
     url_match = re.search(url_rex, url)
@@ -69,6 +74,15 @@ def crawlingNaverArticle(url):
     try: result["published_date"] = getNaverArticlePublishedDate(soup.select_one('.se_publishDate').text)
     except (TypeError, KeyError): result["published_date"] = None
     
+    return result
+
+def crawlingMobileNaverArticle(url):
+
+    original_url = url
+    url = url.replace("m.blog.naver.com", "blog.naver.com")
+    result = crawlingNaverArticle(url)
+    
+    result["page_url"] = original_url
     return result
 
 
