@@ -2,6 +2,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 import json
+import max_value_constants as constant
 
 
 def isCoupangProduct(url):
@@ -61,7 +62,7 @@ def crawlingCoupangProduct(url):
         "site_name" : "Coupang",
     }
 
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:200]
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = "https:" + soup.select_one('meta[property="og:image"]')['content']
@@ -69,7 +70,7 @@ def crawlingCoupangProduct(url):
 
     try:
         result["price"] = soup.select_one("span.total-price > strong").text
-        result["price"] =  result["price"][:100]
+        result["price"] =  result["price"][:constant.PRICE_MAX_LENGTH]
     except (TypeError, KeyError): result["price"] = None
 
     return result
@@ -103,8 +104,8 @@ def crawlingMobileCoupangProduct(url):
     vendorItemDetail = json_obj.get('rData').get('vendorItemDetail')
     item = vendorItemDetail.get('item')
 
-    result['title'] = item.get('productName')[:200]
-    result['price'] = str(item.get('couponPrice'))[:100]
+    result['title'] = item.get('productName')[:constant.TITLE_MAX_LENGTH]
+    result['price'] = str(item.get('couponPrice'))[:constant.PRICE_MAX_LENGTH]
     result['thumbnail_url'] = vendorItemDetail.get('resource').get('originalSquare').get('thumbnailUrl')
     
     return result
@@ -124,9 +125,9 @@ def crawling11stProduct(url):
     result = {
         "type" : "product",
         "page_url" : url,
-        "title" : soup.select_one('meta[property="og:title"]')['content'][:200],
+        "title" : soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH],
         "thumbnail_url" : soup.select_one('meta[property="og:image"]')['content'],
-        "price" : (soup.select_one('meta[property="og:description"]')['content'].split(':')[1][1:])[:100], #12,900원
+        "price" : (soup.select_one('meta[property="og:description"]')['content'].split(':')[1][1:])[:constant.PRICE_MAX_LENGTH], #12,900원
         "site_name" : "11st",
     }
 
@@ -150,13 +151,13 @@ def crawlingGmarketProduct(url):
         "site_name" : "Gmarket",
     }
 
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:200]
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = "https://" + soup.select_one('meta[property="og:image"]')['content'][2:]
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["price"] = soup.select_one('meta[property="og:description"]')['content'][:100]
+    try: result["price"] = soup.select_one('meta[property="og:description"]')['content'][:constant.PRICE_MAX_LENGTH]
     except (TypeError, KeyError): result["price"] = None
 
     return result
@@ -184,13 +185,13 @@ def crawlingAuctionProduct(url):
         "site_name" : "Auction",
     }
 
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:200]
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = "https://" + soup.select_one('meta[property="og:image"]')['content'][2:]
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["price"] = soup.select_one('meta[property="og:description"]')['content'][:100]
+    try: result["price"] = soup.select_one('meta[property="og:description"]')['content'][:constant.PRICE_MAX_LENGTH]
     except (TypeError, KeyError): result["price"] = None
 
     return result
@@ -213,13 +214,13 @@ def crawlingTmonProduct(url):
         "site_name" : "Tmon",
     }
 
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:200]
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["price"] = soup.select_one('meta[property="og:price"]')['content'][:100]
+    try: result["price"] = soup.select_one('meta[property="og:price"]')['content'][:constant.PRICE_MAX_LENGTH]
     except (TypeError, KeyError): result["price"] = None
 
     return result
@@ -252,7 +253,7 @@ def crawlingWemakepriceProduct(url):
     except (TypeError, KeyError):
         result["price"] = None
     
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:200]
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
@@ -288,7 +289,7 @@ def crawlingNaverProduct(url):
     except (TypeError, KeyError):
         result["price"] = None
 
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:200]
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:constant.TITLE_MAX_LENGTH]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
