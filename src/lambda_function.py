@@ -11,6 +11,7 @@ from other import crawlingOther
 from video import isYoutubeVideo, crawlingYoutubeVideo
 from video import isNaverTvVideo, crawlingNaverTvVideo
 from article import isNaverArticle, crawlingNaverArticle
+from article import isMobileNaverArticle, crawlingMobileNaverArticle
 from article import isVelogArticle, crawlingVelogArticle
 from article import isTistoryArticle, crawlingTistoryArticle
 from article import isBrunchArticle, crawlingBrunchArticle
@@ -56,6 +57,9 @@ def crawling(url):
 
     if isNaverArticle(url):
         return crawlingNaverArticle(url)
+    
+    if isMobileNaverArticle(url):
+        return crawlingMobileNaverArticle(url)
     
     if isVelogArticle(url):
         return crawlingVelogArticle(url)

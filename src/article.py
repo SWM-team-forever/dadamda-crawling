@@ -9,6 +9,11 @@ def isNaverArticle(url):
     url_match = re.search(url_rex, url)
     return bool(url_match)
 
+def isMobileNaverArticle(url):
+    url_rex = r"https:\/\/m.blog.naver.com\/\w+\/\d+"
+    url_match = re.search(url_rex, url)
+    return bool(url_match)
+
 def isVelogArticle(url):
     url_rex = r"https:\/\/velog.io\/@\S+\/\S+"
     url_match = re.search(url_rex, url)
@@ -70,6 +75,10 @@ def crawlingNaverArticle(url):
     except (TypeError, KeyError): result["published_date"] = None
     
     return result
+
+def crawlingMobileNaverArticle(url):
+    url = url.replace("m.blog.naver.com", "blog.naver.com")
+    return crawlingNaverArticle(url)
 
 
 def getNaverArticlePublishedDate(input_date):
