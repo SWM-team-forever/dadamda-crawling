@@ -62,13 +62,14 @@ def crawlingKakaoPlace(url):
     except(TypeError, KeyError): 
         return crawlingOther(url)
 
-    try : result['title'] = place_obj['basicInfo']['placenamefull']
+    try : result['title'] = place_obj['basicInfo']['placenamefull'][:200]
     except(TypeError, KeyError): result['title'] = None
     
     try :
         result['address'] = place_obj['basicInfo']['address']['region']['newaddrfullname'] + " " + place_obj['basicInfo']['address']['newaddr']['newaddrfull']
         if 'addrdetail' in place_obj['basicInfo']['address']:
             result['address'] += " " + place_obj['basicInfo']['address']['addrdetail']
+        result['address'] = result['address'][:255]
     except(TypeError, KeyError): result['address'] = None
 
     try : result['phonenum'] = place_obj['basicInfo']['phonenum']
@@ -80,7 +81,7 @@ def crawlingKakaoPlace(url):
     try : result['homepage'] = place_obj['basicInfo']['homepage']
     except(TypeError, KeyError): result['homepage'] = None
     
-    try : result['category'] = place_obj['basicInfo']['category']['catename']
+    try : result['category'] = place_obj['basicInfo']['category']['catename'][:100]
     except(TypeError, KeyError): result['category'] = None
 
     return result
@@ -128,16 +129,16 @@ def crawlingNaverPlace(url):
     except(TypeError, KeyError): 
         return crawlingOther(url)
 
-    try : result['title'] = place_obj['name']
+    try : result['title'] = place_obj['name'][:200]
     except(TypeError, KeyError): result['title'] = None
 
-    try: result['address'] = place_obj['roadAddress']
+    try: result['address'] = place_obj['roadAddress'][:255]
     except(TypeError, KeyError): result['address'] = None
 
     try: result['phonenum'] = place_obj['buttons']['phone']
     except(TypeError, KeyError): result['phonenum'] = None
 
-    try : result['category'] = place_obj['category']
+    try : result['category'] = place_obj['category'][:100]
     except(TypeError, KeyError): result['category'] = None
 
     return result

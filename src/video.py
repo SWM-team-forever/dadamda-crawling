@@ -60,16 +60,16 @@ def crawlingYoutubeVideo(url):
     except (TypeError, KeyError):
         result["published_date"] = None
     
-    try: result["title"] = json_obj['items'][0]['snippet']['title']
+    try: result["title"] = json_obj['items'][0]['snippet']['title'][:200]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = json_obj['items'][0]['snippet']['thumbnails']['high']['url']
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["description"] = json_obj['items'][0]['snippet']['description']
+    try: result["description"] = json_obj['items'][0]['snippet']['description'][:1000]
     except (TypeError, KeyError): result["description"] = None
 
-    try: result["channel_name"] = json_obj['items'][0]['snippet']['channelTitle']
+    try: result["channel_name"] = json_obj['items'][0]['snippet']['channelTitle'][:100]
     except (TypeError, KeyError): result["channel_name"] = None
 
     try: result["watched_cnt"] = json_obj['items'][0]['statistics']['viewCount']
@@ -103,16 +103,16 @@ def crawlingNaverTvVideo(url):
         "site_name" : "Naver TV",
     }
 
-    try: result["title"] = soup.select_one('meta[property="og:title"]')['content']
+    try: result["title"] = soup.select_one('meta[property="og:title"]')['content'][:200]
     except (TypeError, KeyError): result["title"] = None
 
     try: result["thumbnail_url"] = soup.select_one('meta[property="og:image"]')['content']
     except (TypeError, KeyError): result["thumbnail_url"] = None
 
-    try: result["description"] = soup.select_one('meta[property="og:description"]')['content']
+    try: result["description"] = soup.select_one('meta[property="og:description"]')['content'][:1000]
     except (TypeError, KeyError): result["description"] = None
 
-    try: result["channel_name"] = soup.select_one('meta[property="og:article:author"]')['content']
+    try: result["channel_name"] = soup.select_one('meta[property="og:article:author"]')['content'][:100]
     except (TypeError, KeyError): result["channel_name"] = None
 
     try: result["channel_image_url"] = soup.select_one('meta[property="og:article:author:image"]')['content']

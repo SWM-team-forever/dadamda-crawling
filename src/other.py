@@ -29,12 +29,12 @@ def crawlingOther(url):
             "page_url": url,
         }
         
-        try: result["title"] = soup.select_one('meta[name="twitter:title"]')['content']
+        try: result["title"] = soup.select_one('meta[name="twitter:title"]')['content'][:200]
         except (TypeError, KeyError):
             try:
-                result["title"] = soup.select_one('meta[property="og:title"]')['content']
+                result["title"] = soup.select_one('meta[property="og:title"]')['content'][:200]
             except (TypeError, KeyError):
-                result["title"] = soup.title.string if soup.title else None
+                result["title"] = (soup.title.string)[:200] if soup.title else None
 
         try:
             result["thumbnail_url"] = soup.select_one('meta[name="twitter:image"]')['content']
@@ -52,12 +52,12 @@ def crawlingOther(url):
                 result["thumbnail_url"] = parsed.scheme + "://" + parsed.netloc + result["thumbnail_url"]
 
         try:
-            result["description"] = soup.select_one('meta[name="twitter:description"]')['content']
+            result["description"] = soup.select_one('meta[name="twitter:description"]')['content'][:1000]
         except (TypeError, KeyError):
             try:
-                result["description"] = soup.select_one('meta[property="og:description"]')['content']
+                result["description"] = soup.select_one('meta[property="og:description"]')['content'][:1000]
             except (TypeError, KeyError):
-                result["description"] = soup.select_one('meta[name="description"]')['content'] if soup.select_one('meta[name="description"]') else None
+                result["description"] = soup.select_one('meta[name="description"]')['content'][:1000] if (soup.select_one('meta[name="description"]'))[:1000] else None
 
         return result
 
