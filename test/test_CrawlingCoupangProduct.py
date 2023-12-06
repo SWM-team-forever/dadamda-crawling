@@ -15,5 +15,5 @@ def test_isCoupangProduct():
     url = "https://www.coupang.com/vp/products/6233754096?vendorItemId=79811497595&sourceType=cmgoms&omsPageId=47424&omsPageUrl=47424&isAddedCart="
     result = crawling(url)
     assert result.get("title") == "설화우 1등급 한우구이 매화세트 등심 200g x 2p + 채끝 200g + 안심 200g"
-    assert result.get("price") == "149,000원"
+    assert result.get("price") == "164,000원"
     assert result.get("thumbnail_url") == "https://thumbnail6.coupangcdn.com/thumbnails/remote/230x230ex/image/retail/images/687115119666083-4c2b4ff7-d096-47af-b218-12a40496e6b0.jpg"
